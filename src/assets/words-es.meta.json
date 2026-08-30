@@ -1,0 +1,21 @@
+{
+  "count": 51696,
+  "minCorpusFrequency": 2,
+  "minLength": 2,
+  "folding": "lowercase, NFD, drop non a-z",
+  "sources": [
+    {
+      "name": "an-array-of-spanish-words",
+      "role": "vocabulary",
+      "license": "MIT - an-array-of-spanish-words (github.com/words/an-array-of-spanish-words)"
+    },
+    {
+      "name": "spa_news_2023_300K",
+      "role": "frequency filter",
+      "url": "https://downloads.wortschatz-leipzig.de/corpora/spa_news_2023_300K.tar.gz",
+      "license": "CC BY 4.0 - Leipzig Corpora Collection (wortschatz-leipzig.de)"
+    }
+  ],
+  "generatedAt": "2026-08-30T06:16:03Z",
+  "generator": "scripts/build_dictionary.py"
+}

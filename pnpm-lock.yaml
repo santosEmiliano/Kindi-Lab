@@ -45,6 +45,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.11
         version: 4.1.11(vitest@4.1.11)
+      an-array-of-spanish-words:
+        specifier: ^2.0.0
+        version: 2.0.0
       jsdom:
         specifier: ^30.0.1
         version: 30.0.1
@@ -603,6 +606,10 @@ packages:
 
   '@vitest/utils@4.1.11':
     resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
+
+  an-array-of-spanish-words@2.0.0:
+    resolution: {integrity: sha512-mzTXYjlzlT6RhQWeBpXgz0mtUkR1qNra6Zx68BRsMY5uejokblFW3d0asckbds5uacO/otrFPka2dWCr65gzmg==}
+    hasBin: true
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -1583,6 +1590,8 @@ snapshots:
       '@vitest/pretty-format': 4.1.11
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
+
+  an-array-of-spanish-words@2.0.0: {}
 
   ansi-regex@5.0.1: {}
 
