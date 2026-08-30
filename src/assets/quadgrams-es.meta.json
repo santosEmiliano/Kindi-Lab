@@ -1,0 +1,18 @@
+{
+  "alphabet": "abcdefghijklmnopqrstuvwxyz",
+  "order": 4,
+  "tableSize": 456976,
+  "totalQuadgrams": 31450489,
+  "distinctQuadgrams": 119561,
+  "floorLog10": -9.497627402352055,
+  "license": "CC BY 4.0 - Leipzig Corpora Collection (wortschatz-leipzig.de)",
+  "corpora": [
+    {
+      "id": "spa_news_2023_300K",
+      "sentences": 300000,
+      "url": "https://downloads.wortschatz-leipzig.de/corpora/spa_news_2023_300K.tar.gz"
+    }
+  ],
+  "generatedAt": "2026-08-30T05:51:37Z",
+  "generator": "scripts/build_quadgrams.py"
+}
