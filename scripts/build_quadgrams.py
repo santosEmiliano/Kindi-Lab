@@ -4,65 +4,27 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import shutil
 import sys
-import tarfile
-import unicodedata
-import urllib.request
 from array import array
 from collections import Counter
 from datetime import datetime, timezone
-from pathlib import Path
 
-ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+from _leipzig import (
+    ALPHABET,
+    ASSET_DIR,
+    LEIPZIG_LICENSE,
+    RANK,
+    corpus_url,
+    download,
+    fold,
+    iter_sentences,
+)
+
 BASE = len(ALPHABET)
 ORDER = 4
 TABLE_SIZE = BASE**ORDER
 FLOOR_RATIO = 0.01
-
-RANK = {char: index for index, char in enumerate(ALPHABET)}
-
-SCRIPT_DIR = Path(__file__).resolve().parent
-CACHE_DIR = SCRIPT_DIR / ".cache"
-ASSET_DIR = SCRIPT_DIR.parent / "src" / "assets"
-
-LEIPZIG_BASE = "https://downloads.wortschatz-leipzig.de/corpora"
-LEIPZIG_LICENSE = "CC BY 4.0 - Leipzig Corpora Collection (wortschatz-leipzig.de)"
 DEFAULT_CORPORA = ["spa_news_2023_300K"]
-
-
-def fold(text: str) -> str:
-    decomposed = unicodedata.normalize("NFD", text.lower())
-    return "".join(char for char in decomposed if char in RANK)
-
-
-def download(corpus_id: str) -> Path:
-    CACHE_DIR.mkdir(exist_ok=True)
-    archive = CACHE_DIR / f"{corpus_id}.tar.gz"
-    if archive.exists() and archive.stat().st_size > 0:
-        return archive
-    url = f"{LEIPZIG_BASE}/{corpus_id}.tar.gz"
-    print(f"downloading {url}")
-    request = urllib.request.Request(url, headers={"User-Agent": "kindi-lab-build/1.0"})
-    with urllib.request.urlopen(request) as response, open(archive, "wb") as out:
-        shutil.copyfileobj(response, out)
-    return archive
-
-
-def iter_sentences(archive: Path):
-    with tarfile.open(archive, "r:gz") as tar:
-        member = next(
-            (m for m in tar.getmembers() if m.name.endswith("-sentences.txt")), None
-        )
-        if member is None:
-            raise SystemExit(f"no -sentences.txt inside {archive.name}")
-        handle = tar.extractfile(member)
-        if handle is None:
-            raise SystemExit(f"could not read {member.name}")
-        for raw in handle:
-            line = raw.decode("utf-8", "ignore")
-            tab = line.find("\t")
-            yield line[tab + 1 :] if tab >= 0 else line
 
 
 def quad_index(quad: str) -> int:
@@ -86,11 +48,7 @@ def count_quadgrams(corpora: list[str]):
             )
         print(f"  {corpus_id}: {sentences} sentences")
         corpora_meta.append(
-            {
-                "id": corpus_id,
-                "sentences": sentences,
-                "url": f"{LEIPZIG_BASE}/{corpus_id}.tar.gz",
-            }
+            {"id": corpus_id, "sentences": sentences, "url": corpus_url(corpus_id)}
         )
     return counter, corpora_meta
 

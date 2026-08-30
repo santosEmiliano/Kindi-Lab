@@ -12,6 +12,7 @@ coverage/
 
 # Build caches
 scripts/.cache/
+__pycache__/
 
 # Logs
 logs/
