@@ -20,7 +20,7 @@ export function scoreWordRatio(
   let valid = 0
   for (const token of text.split(/\s+/)) {
     const folded = foldToLatin(token)
-    if (!folded) continue
+    if (folded.length < 2) continue
     total++
     if (words.has(folded)) valid++
   }
