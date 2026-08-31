@@ -1,0 +1,110 @@
+.mirror {
+  grid-row: 2;
+  align-self: end;
+  position: relative;
+  width: 100%;
+  height: 0;
+  margin-bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    height 0.5s ease,
+    margin-bottom 0.5s ease,
+    opacity 0.5s ease;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+
+.stage[data-view='atbash'] .mirror {
+  height: 168px;
+  margin-bottom: 36px;
+  opacity: 1;
+}
+
+.stage[data-view='atbash'][data-mode='decrypt'] .mirror {
+  opacity: 0.4;
+}
+
+.mirror .axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent), transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.mirror .track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding: 0 24px;
+  animation: mirror-slide 26s linear infinite;
+}
+
+.mirror .cell {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.mirror .cell .top,
+.mirror .cell .bot {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.mirror .cell .top {
+  color: var(--text-dim);
+}
+
+.mirror .cell .bot {
+  color: var(--accent);
+  opacity: 0.5;
+  transform: scaleY(-1);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000);
+  mask-image: linear-gradient(to bottom, transparent, #000);
+}
+
+@keyframes mirror-slide {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mirror {
+    transition:
+      height 0s,
+      margin-bottom 0s,
+      opacity 0s;
+  }
+
+  .mirror .track {
+    animation: none;
+  }
+}

@@ -3,6 +3,7 @@ import './App.css'
 import { CharsetRing } from './components/CharsetRing'
 import { CipherResult } from './components/CipherResult'
 import { InputPill } from './components/InputPill'
+import { MirrorBand } from './components/MirrorBand'
 import { Subrow } from './components/Subrow'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Verdict } from './components/Verdict'
@@ -105,6 +106,8 @@ function App() {
           />
         )}
       </div>
+
+      <MirrorBand />
     </div>
   )
 }
