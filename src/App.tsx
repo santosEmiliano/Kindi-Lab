@@ -8,121 +8,154 @@ import { MirrorBand } from './components/MirrorBand'
 import { Subrow } from './components/Subrow'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Verdict } from './components/Verdict'
+import { atbash, caesarEncrypt } from './lib/ciphers'
+import { buildRing, type Ring } from './lib/charset'
 import {
-  atbash,
-  caesar,
-  detect,
-  expectedSpanish,
-  letterFrequencies,
-  type PreviewDetection,
-  ringLabels,
-} from './lib/preview-cipher'
-import {
-  buildPreviewRing,
-  CHARSET_PRESETS,
   CUSTOM_CHARSET_ID,
+  DEFAULT_CHARSET_ID,
   MIN_RING_SIZE,
-} from './lib/preview-charset'
+  PRESET_OPTIONS,
+} from './lib/charsets'
+import { detectCipher, type DetectionResult } from './lib/detect/select'
+import { loadSpanishData, type SpanishData } from './lib/spanish-data'
+import {
+  expectedFrequencies,
+  HISTOGRAM_LABELS,
+  letterHistogram,
+} from './lib/letter-histogram'
 import type { Method, Mode } from './types'
 
-const DEFAULT_RING = buildPreviewRing(CHARSET_PRESETS[0].chars)
-const SAMPLE_PLAIN = 'El saber es la única riqueza que un tirano no puede confiscar.'
-const SAMPLE_CIPHER = caesar(
-  'La escritura secreta se rompe contando letras, no adivinando.',
-  7,
+const EMPTY_CHARS: readonly string[] = []
+const DEFAULT_RING = buildRing(
+  PRESET_OPTIONS.find((preset) => preset.id === DEFAULT_CHARSET_ID)?.chars ?? '',
+)
+const SAMPLE_PLAIN = 'EL SABER ES LA UNICA RIQUEZA QUE UN TIRANO NO PUEDE CONFISCAR.'
+const SAMPLE_CIPHER = caesarEncrypt(
+  'LA ESCRITURA SECRETA SE ROMPE CONTANDO LETRAS, NO ADIVINANDO.',
   DEFAULT_RING,
+  7,
 )
 
 function App() {
   const [mode, setMode] = useState<Mode>('encrypt')
   const [method, setMethod] = useState<Method>('caesar')
   const [shift, setShift] = useState(3)
-  const [charsetId, setCharsetId] = useState(CHARSET_PRESETS[0].id)
-  const [displayCharsetId, setDisplayCharsetId] = useState(CHARSET_PRESETS[0].id)
+  const [charsetId, setCharsetId] = useState<string>(DEFAULT_CHARSET_ID)
+  const [displayCharsetId, setDisplayCharsetId] = useState<string>(DEFAULT_CHARSET_ID)
   const [customChars, setCustomChars] = useState('')
   const [values, setValues] = useState<Record<Mode, string>>({
     encrypt: SAMPLE_PLAIN,
     decrypt: SAMPLE_CIPHER,
   })
-  const [detection, setDetection] = useState<PreviewDetection | null>(null)
+  const [detection, setDetection] = useState<DetectionResult | null>(null)
+  const [spanishData, setSpanishData] = useState<SpanishData | null>(null)
+  const [detecting, setDetecting] = useState(false)
+  const [detectError, setDetectError] = useState<string | null>(null)
   const [charsetFading, setCharsetFading] = useState(false)
   const fadeTimer = useRef<number>(undefined)
 
   useEffect(() => () => window.clearTimeout(fadeTimer.current), [])
 
-  const ring = useMemo(() => {
+  const resetDetection = useCallback(() => {
+    setDetection(null)
+    setDetectError(null)
+  }, [])
+
+  const ring = useMemo<Ring | null>(() => {
     const chars =
       charsetId === CUSTOM_CHARSET_ID
         ? customChars
-        : (CHARSET_PRESETS.find((preset) => preset.id === charsetId)?.chars ?? '')
-    return buildPreviewRing(chars)
+        : (PRESET_OPTIONS.find((preset) => preset.id === charsetId)?.chars ?? '')
+    return new Set(chars).size >= MIN_RING_SIZE ? buildRing(chars) : null
   }, [charsetId, customChars])
 
-  const displayRing = useMemo(() => {
+  const displayRing = useMemo<Ring | null>(() => {
     const chars =
       displayCharsetId === CUSTOM_CHARSET_ID
         ? customChars
-        : (CHARSET_PRESETS.find((preset) => preset.id === displayCharsetId)?.chars ??
+        : (PRESET_OPTIONS.find((preset) => preset.id === displayCharsetId)?.chars ??
           '')
-    return buildPreviewRing(chars)
+    return new Set(chars).size >= MIN_RING_SIZE ? buildRing(chars) : null
   }, [displayCharsetId, customChars])
-  const ringValid = ring.length >= MIN_RING_SIZE
+  const ringValid = ring !== null
+  const ringSize = ring?.size ?? 0
   const ringError =
     charsetId === CUSTOM_CHARSET_ID && !ringValid
       ? `El alfabeto necesita al menos ${MIN_RING_SIZE} caracteres distintos.`
       : null
 
-  const effectiveShift = Math.min(shift, Math.max(1, ring.length - 1))
+  const effectiveShift = Math.min(shift, Math.max(1, ringSize - 1))
   const text = values[mode]
 
   const setText = useCallback(
     (value: string) => {
       setValues((prev) => ({ ...prev, [mode]: value }))
-      if (mode === 'decrypt') setDetection(null)
+      if (mode === 'decrypt') resetDetection()
     },
-    [mode],
+    [mode, resetDetection],
   )
 
-  const changeMode = useCallback((next: Mode) => {
-    setMode(next)
-    setDetection(null)
-  }, [])
+  const changeMode = useCallback(
+    (next: Mode) => {
+      setMode(next)
+      resetDetection()
+    },
+    [resetDetection],
+  )
 
-  const changeCharset = useCallback((id: string) => {
-    setCharsetId(id)
-    setDetection(null)
-    window.clearTimeout(fadeTimer.current)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDisplayCharsetId(id)
-      setCharsetFading(false)
-      return
-    }
-    setCharsetFading(true)
-    fadeTimer.current = window.setTimeout(() => {
-      setDisplayCharsetId(id)
-      setCharsetFading(false)
-    }, 260)
-  }, [])
+  const changeCharset = useCallback(
+    (id: string) => {
+      setCharsetId(id)
+      resetDetection()
+      window.clearTimeout(fadeTimer.current)
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setDisplayCharsetId(id)
+        setCharsetFading(false)
+        return
+      }
+      setCharsetFading(true)
+      fadeTimer.current = window.setTimeout(() => {
+        setDisplayCharsetId(id)
+        setCharsetFading(false)
+      }, 260)
+    },
+    [resetDetection],
+  )
 
-  const changeCustomChars = useCallback((chars: string) => {
-    setCustomChars(chars)
-    setDetection(null)
-  }, [])
+  const changeCustomChars = useCallback(
+    (chars: string) => {
+      setCustomChars(chars)
+      resetDetection()
+    },
+    [resetDetection],
+  )
 
   const run = useCallback(() => {
-    if (mode === 'decrypt' && ringValid) {
-      setDetection(detect(values.decrypt, ring))
-    }
-  }, [mode, ringValid, values.decrypt, ring])
+    if (mode !== 'decrypt' || !ring) return
+    const ciphertext = values.decrypt
+    setDetecting(true)
+    setDetectError(null)
+    loadSpanishData()
+      .then((data) => {
+        setSpanishData(data)
+        setDetection(detectCipher(ciphertext, ring, data))
+      })
+      .catch(() => {
+        setDetectError(
+          'No se pudieron cargar los datos del español. Revisa la conexión e inténtalo otra vez.',
+        )
+      })
+      .finally(() => setDetecting(false))
+  }, [mode, ring, values.decrypt])
 
   const view =
     mode === 'decrypt' ? (detection ? detection.method : 'caesar') : method
 
   const output = useMemo(() => {
-    if (mode !== 'encrypt') return ''
+    if (mode !== 'encrypt' || !ring) return ''
     return method === 'atbash'
       ? atbash(text, ring)
-      : caesar(text, effectiveShift, ring)
+      : caesarEncrypt(text, ring, effectiveShift)
   }, [mode, method, effectiveShift, text, ring])
 
   return (
@@ -140,7 +173,7 @@ function App() {
         </header>
 
         <CharsetPicker
-          presets={CHARSET_PRESETS}
+          presets={PRESET_OPTIONS}
           value={charsetId}
           customChars={customChars}
           error={ringError}
@@ -151,7 +184,7 @@ function App() {
         <div className="field">
           <div className="pill-anchor">
             <CharsetRing
-              letters={displayRing}
+              letters={displayRing?.chars ?? EMPTY_CHARS}
               shift={effectiveShift}
               active={view === 'caesar'}
               dimmed={mode === 'decrypt'}
@@ -161,6 +194,7 @@ function App() {
               mode={mode}
               method={method}
               text={text}
+              busy={detecting}
               onTextChange={setText}
               onMethodChange={setMethod}
               onModeChange={changeMode}
@@ -171,24 +205,36 @@ function App() {
             mode={mode}
             method={method}
             shift={effectiveShift}
-            ringSize={ring.length}
+            ringSize={ringSize}
             onShiftChange={setShift}
           />
         </div>
 
         {mode === 'encrypt' && <CipherResult value={output} />}
 
-        {mode === 'decrypt' && detection && (
+        {mode === 'decrypt' && detecting && (
+          <p className="detect-status" aria-live="polite">
+            Analizando el texto contra el español…
+          </p>
+        )}
+
+        {mode === 'decrypt' && detectError && (
+          <p className="detect-status is-error" role="alert">
+            {detectError}
+          </p>
+        )}
+
+        {mode === 'decrypt' && detection && spanishData && (
           <Verdict
             detection={detection}
-            observed={letterFrequencies(values.decrypt)}
-            expected={expectedSpanish}
-            labels={ringLabels}
+            observed={letterHistogram(values.decrypt)}
+            expected={expectedFrequencies(spanishData.letterFrequencies)}
+            labels={HISTOGRAM_LABELS}
           />
         )}
       </main>
 
-      <MirrorBand letters={displayRing} fading={charsetFading} />
+      <MirrorBand letters={displayRing?.chars ?? EMPTY_CHARS} fading={charsetFading} />
     </div>
   )
 }

@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { CHARSET_PRESETS } from '../lib/preview-charset'
+import { PRESET_OPTIONS } from '../lib/charsets'
 import { CharsetPicker } from './CharsetPicker'
 
 const noop = () => undefined
 
 function setup(overrides: Partial<Parameters<typeof CharsetPicker>[0]> = {}) {
   const props = {
-    presets: CHARSET_PRESETS,
-    value: CHARSET_PRESETS[0].id,
+    presets: PRESET_OPTIONS,
+    value: PRESET_OPTIONS[0].id,
     customChars: '',
     error: null as string | null,
     onValueChange: noop,
@@ -26,7 +26,7 @@ describe('CharsetPicker', () => {
     const select = screen.getByLabelText('Alfabeto') as HTMLSelectElement
     const optionValues = [...select.options].map((option) => option.value)
     expect(optionValues).toEqual([
-      ...CHARSET_PRESETS.map((preset) => preset.id),
+      ...PRESET_OPTIONS.map((preset) => preset.id),
       'custom',
     ])
   })
@@ -34,8 +34,8 @@ describe('CharsetPicker', () => {
   it('reveals the custom-characters input only for the custom option', () => {
     const { rerender } = render(
       <CharsetPicker
-        presets={CHARSET_PRESETS}
-        value={CHARSET_PRESETS[0].id}
+        presets={PRESET_OPTIONS}
+        value={PRESET_OPTIONS[0].id}
         customChars=""
         error={null}
         onValueChange={noop}
@@ -46,7 +46,7 @@ describe('CharsetPicker', () => {
 
     rerender(
       <CharsetPicker
-        presets={CHARSET_PRESETS}
+        presets={PRESET_OPTIONS}
         value="custom"
         customChars="ABC"
         error={null}

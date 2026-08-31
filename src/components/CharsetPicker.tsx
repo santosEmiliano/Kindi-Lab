@@ -1,11 +1,8 @@
 import './CharsetPicker.css'
-import {
-  type CharsetPreset,
-  CUSTOM_CHARSET_ID,
-} from '../lib/preview-charset'
+import { type CharsetOption, CUSTOM_CHARSET_ID } from '../lib/charsets'
 
 interface CharsetPickerProps {
-  presets: readonly CharsetPreset[]
+  presets: readonly CharsetOption[]
   value: string
   customChars: string
   error: string | null

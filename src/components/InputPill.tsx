@@ -5,6 +5,7 @@ interface InputPillProps {
   mode: Mode
   method: Method
   text: string
+  busy?: boolean
   onTextChange: (value: string) => void
   onMethodChange: (value: Method) => void
   onModeChange: (value: Mode) => void
@@ -15,6 +16,7 @@ export function InputPill({
   mode,
   method,
   text,
+  busy = false,
   onTextChange,
   onMethodChange,
   onModeChange,
@@ -68,10 +70,12 @@ export function InputPill({
       <button
         className="run"
         type="button"
-        aria-label={decrypt ? 'Descifrar' : 'Cifrar'}
+        aria-label={busy ? 'Analizando' : decrypt ? 'Descifrar' : 'Cifrar'}
+        aria-busy={busy || undefined}
+        disabled={busy}
         onClick={onRun}
       >
-        ▶
+        {busy ? '…' : '▶'}
       </button>
     </div>
   )

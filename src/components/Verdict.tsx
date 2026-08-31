@@ -1,9 +1,9 @@
 import './Verdict.css'
-import type { PreviewDetection } from '../lib/preview-cipher'
+import type { DetectionResult } from '../lib/detect/select'
 import { Histogram } from './Histogram'
 
 interface VerdictProps {
-  detection: PreviewDetection
+  detection: DetectionResult
   observed: number[]
   expected: readonly number[]
   labels: readonly string[]

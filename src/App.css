@@ -95,6 +95,22 @@
   margin-top: 22px;
 }
 
+.detect-status {
+  margin: 22px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.01em;
+}
+
+.detect-status.is-error {
+  color: var(--warn);
+  font-family: var(--font-sans);
+  max-width: 44ch;
+  text-align: center;
+  text-wrap: balance;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pill-anchor {
     transition: none;
