@@ -3,9 +3,10 @@ import './MirrorBand.css'
 
 interface MirrorBandProps {
   letters: readonly string[]
+  fading?: boolean
 }
 
-export function MirrorBand({ letters }: MirrorBandProps) {
+export function MirrorBand({ letters, fading = false }: MirrorBandProps) {
   const n = letters.length
   const trackRef = useRef<HTMLDivElement>(null)
   const [passWidth, setPassWidth] = useState(0)
@@ -24,7 +25,11 @@ export function MirrorBand({ letters }: MirrorBandProps) {
   }, [n, letters])
 
   return (
-    <div className="mirror" aria-hidden="true">
+    <div
+      className="mirror"
+      aria-hidden="true"
+      style={fading ? { opacity: 0 } : undefined}
+    >
       <div className="axis" />
       <div
         key={n}

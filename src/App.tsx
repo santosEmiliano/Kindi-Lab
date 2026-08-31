@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { CharsetPicker } from './components/CharsetPicker'
 import { CharsetRing } from './components/CharsetRing'
@@ -38,19 +38,34 @@ function App() {
   const [method, setMethod] = useState<Method>('caesar')
   const [shift, setShift] = useState(3)
   const [charsetId, setCharsetId] = useState(CHARSET_PRESETS[0].id)
+  const [displayCharsetId, setDisplayCharsetId] = useState(CHARSET_PRESETS[0].id)
   const [customChars, setCustomChars] = useState('')
   const [values, setValues] = useState<Record<Mode, string>>({
     encrypt: SAMPLE_PLAIN,
     decrypt: SAMPLE_CIPHER,
   })
   const [detection, setDetection] = useState<PreviewDetection | null>(null)
+  const [charsetFading, setCharsetFading] = useState(false)
+  const fadeTimer = useRef<number>(undefined)
 
-  const source =
-    charsetId === CUSTOM_CHARSET_ID
-      ? customChars
-      : (CHARSET_PRESETS.find((preset) => preset.id === charsetId)?.chars ?? '')
+  useEffect(() => () => window.clearTimeout(fadeTimer.current), [])
 
-  const ring = useMemo(() => buildPreviewRing(source), [source])
+  const ring = useMemo(() => {
+    const chars =
+      charsetId === CUSTOM_CHARSET_ID
+        ? customChars
+        : (CHARSET_PRESETS.find((preset) => preset.id === charsetId)?.chars ?? '')
+    return buildPreviewRing(chars)
+  }, [charsetId, customChars])
+
+  const displayRing = useMemo(() => {
+    const chars =
+      displayCharsetId === CUSTOM_CHARSET_ID
+        ? customChars
+        : (CHARSET_PRESETS.find((preset) => preset.id === displayCharsetId)?.chars ??
+          '')
+    return buildPreviewRing(chars)
+  }, [displayCharsetId, customChars])
   const ringValid = ring.length >= MIN_RING_SIZE
   const ringError =
     charsetId === CUSTOM_CHARSET_ID && !ringValid
@@ -76,6 +91,17 @@ function App() {
   const changeCharset = useCallback((id: string) => {
     setCharsetId(id)
     setDetection(null)
+    window.clearTimeout(fadeTimer.current)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayCharsetId(id)
+      setCharsetFading(false)
+      return
+    }
+    setCharsetFading(true)
+    fadeTimer.current = window.setTimeout(() => {
+      setDisplayCharsetId(id)
+      setCharsetFading(false)
+    }, 260)
   }, [])
 
   const changeCustomChars = useCallback((chars: string) => {
@@ -125,10 +151,11 @@ function App() {
         <div className="field">
           <div className="pill-anchor">
             <CharsetRing
-              letters={ring}
+              letters={displayRing}
               shift={effectiveShift}
               active={view === 'caesar'}
               dimmed={mode === 'decrypt'}
+              fading={charsetFading}
             />
             <InputPill
               mode={mode}
@@ -161,7 +188,7 @@ function App() {
         )}
       </main>
 
-      <MirrorBand letters={ring} />
+      <MirrorBand letters={displayRing} fading={charsetFading} />
     </div>
   )
 }

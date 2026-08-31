@@ -6,9 +6,16 @@ interface CharsetRingProps {
   shift: number
   active: boolean
   dimmed: boolean
+  fading?: boolean
 }
 
-export function CharsetRing({ letters, shift, active, dimmed }: CharsetRingProps) {
+export function CharsetRing({
+  letters,
+  shift,
+  active,
+  dimmed,
+  fading = false,
+}: CharsetRingProps) {
   const { orbitRef, setCardRef } = useOrbitAnimation({
     letters,
     shift,
@@ -17,7 +24,12 @@ export function CharsetRing({ letters, shift, active, dimmed }: CharsetRingProps
   })
 
   return (
-    <div className="orbit" ref={orbitRef} aria-hidden="true">
+    <div
+      className="orbit"
+      ref={orbitRef}
+      aria-hidden="true"
+      style={fading ? { opacity: 0 } : undefined}
+    >
       {letters.map((letter, index) => (
         <span key={index} className="orbit-card" ref={setCardRef(index)}>
           <span className="orbit-glyph">{letter}</span>

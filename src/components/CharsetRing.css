@@ -7,7 +7,7 @@
   z-index: 1;
   pointer-events: none;
   perspective: 900px;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.3s ease;
 }
 
 .stage[data-view='atbash'] .orbit {
