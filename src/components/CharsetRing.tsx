@@ -1,17 +1,16 @@
 import './CharsetRing.css'
 import { useOrbitAnimation } from './useOrbitAnimation'
 
-const ALPHABET = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('')
-
 interface CharsetRingProps {
+  letters: readonly string[]
   shift: number
   active: boolean
   dimmed: boolean
 }
 
-export function CharsetRing({ shift, active, dimmed }: CharsetRingProps) {
+export function CharsetRing({ letters, shift, active, dimmed }: CharsetRingProps) {
   const { orbitRef, setCardRef } = useOrbitAnimation({
-    letters: ALPHABET,
+    letters,
     shift,
     active,
     dimmed,
@@ -19,8 +18,8 @@ export function CharsetRing({ shift, active, dimmed }: CharsetRingProps) {
 
   return (
     <div className="orbit" ref={orbitRef} aria-hidden="true">
-      {ALPHABET.map((letter, index) => (
-        <span key={letter} className="orbit-card" ref={setCardRef(index)}>
+      {letters.map((letter, index) => (
+        <span key={index} className="orbit-card" ref={setCardRef(index)}>
           <span className="orbit-glyph">{letter}</span>
         </span>
       ))}

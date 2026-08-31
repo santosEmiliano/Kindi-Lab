@@ -1,32 +1,42 @@
 import { describe, expect, it } from 'vitest'
+import { buildPreviewRing } from './preview-charset'
 import { atbash, caesar, detect, letterFrequencies } from './preview-cipher'
 
+const ES = buildPreviewRing('ABCDEFGHIJKLMNÑOPQRSTUVWXYZ')
+const ASCII = buildPreviewRing(
+  Array.from({ length: 0x7e - 0x20 + 1 }, (_, i) => String.fromCharCode(0x20 + i)).join(''),
+)
+
 describe('preview-cipher', () => {
-  it('shifts along the 27-letter Spanish ring, wrapping through Ñ', () => {
-    expect(caesar('ABC', 3)).toBe('DEF')
-    expect(caesar('MNO', 1)).toBe('NÑP')
-    expect(caesar('XYZ', 3)).toBe('ABC')
+  it('shifts along the code-point-sorted ring (Ñ sits after Z)', () => {
+    expect(caesar('ABC', 3, ES)).toBe('DEF')
+    expect(caesar('WXY', 1, ES)).toBe('XYZ')
+    expect(caesar('YZÑ', 1, ES)).toBe('ZÑA')
   })
 
   it('round-trips Caesar with the inverse shift', () => {
     const plain = 'El saber es la única riqueza.'
-    expect(caesar(caesar(plain, 7), -7)).toBe(plain)
+    expect(caesar(caesar(plain, 7, ES), -7, ES)).toBe(plain)
   })
 
   it('is involutive for Atbash', () => {
     const plain = 'La escritura secreta.'
-    expect(atbash(atbash(plain))).toBe(plain)
-    expect(atbash('A')).toBe('Z')
-    expect(atbash('abc')).toBe('zyx')
+    expect(atbash(atbash(plain, ES), ES)).toBe(plain)
+    expect(atbash('A', ES)).toBe('Ñ')
+    expect(atbash('N', ES)).toBe('N')
   })
 
-  it('preserves case and leaves off-ring characters untouched', () => {
-    expect(caesar('Hola, mundo!', 1)).toBe('Ipmb, nvñep!')
+  it('folds lowercase onto an uppercase ring and passes off-ring characters', () => {
+    expect(caesar('Hola, mundo!', 1, ES)).toBe('Ipmb, nvoep!')
+  })
+
+  it('treats case as distinct when the ring is case-sensitive', () => {
+    expect(caesar('aA', 1, ASCII)).toBe('bB')
   })
 
   it('recovers a Caesar phrase and its shift', () => {
     const plain = 'La escritura secreta se rompe contando letras, no adivinando.'
-    const result = detect(caesar(plain, 7))
+    const result = detect(caesar(plain, 7, ES), ES)
     expect(result.method).toBe('caesar')
     expect(result.shift).toBe(7)
     expect(result.plaintext).toBe(plain)
@@ -34,13 +44,13 @@ describe('preview-cipher', () => {
 
   it('recovers an Atbash phrase', () => {
     const plain = 'El saber es la unica riqueza que un tirano no puede confiscar.'
-    const result = detect(atbash(plain))
+    const result = detect(atbash(plain, ES), ES)
     expect(result.method).toBe('atbash')
     expect(result.shift).toBeNull()
     expect(result.plaintext).toBe(plain)
   })
 
-  it('produces a distribution that sums to one over the ring', () => {
+  it('produces a Spanish distribution that sums to one', () => {
     const freqs = letterFrequencies('AAAA BBB CC')
     expect(freqs).toHaveLength(27)
     expect(freqs.reduce((a, b) => a + b, 0)).toBeCloseTo(1)

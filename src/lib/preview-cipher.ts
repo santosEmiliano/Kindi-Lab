@@ -1,7 +1,7 @@
 import type { Method } from '../types'
 
-const RING = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('')
-const N = RING.length
+const SPANISH_RING = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('')
+const SN = SPANISH_RING.length
 
 const ES: Record<string, number> = {
   A: 0.1153, B: 0.0148, C: 0.0368, D: 0.047, E: 0.1368, F: 0.0069, G: 0.01,
@@ -10,44 +10,57 @@ const ES: Record<string, number> = {
   U: 0.0393, V: 0.009, W: 0.0002, X: 0.0022, Y: 0.009, Z: 0.0052,
 }
 
-export const ringLabels: readonly string[] = [...RING]
-export const expectedSpanish: readonly number[] = RING.map((letter) => ES[letter])
+export const ringLabels: readonly string[] = [...SPANISH_RING]
+export const expectedSpanish: readonly number[] = SPANISH_RING.map((l) => ES[l])
 
-function isLower(ch: string): boolean {
-  return ch !== ch.toUpperCase() && ch === ch.toLowerCase()
+function indexOf(ring: readonly string[]): Map<string, number> {
+  return new Map(ring.map((ch, i) => [ch, i]))
 }
 
-function keepCase(source: string, out: string): string {
-  return isLower(source) ? out.toLowerCase() : out
+function mapChar(
+  ch: string,
+  ring: readonly string[],
+  index: Map<string, number>,
+  target: (pos: number, n: number) => number,
+): string {
+  const direct = index.get(ch)
+  if (direct !== undefined) return ring[target(direct, ring.length)]
+  const upper = ch.toUpperCase()
+  if (upper !== ch) {
+    const folded = index.get(upper)
+    if (folded !== undefined) return ring[target(folded, ring.length)].toLowerCase()
+  }
+  return ch
 }
 
-function shiftChar(ch: string, delta: number): string {
-  const pos = RING.indexOf(ch.toUpperCase())
-  if (pos < 0) return ch
-  return keepCase(ch, RING[(pos + delta) % N])
-}
-
-export function caesar(text: string, k: number): string {
-  const delta = ((k % N) + N) % N
+export function caesar(text: string, k: number, ring: readonly string[]): string {
+  const n = ring.length
+  if (n < 1) return text
+  const delta = ((k % n) + n) % n
+  const index = indexOf(ring)
   let out = ''
-  for (const ch of text) out += shiftChar(ch, delta)
+  for (const ch of text) {
+    out += mapChar(ch, ring, index, (pos, size) => (pos + delta) % size)
+  }
   return out
 }
 
-export function atbash(text: string): string {
+export function atbash(text: string, ring: readonly string[]): string {
+  const n = ring.length
+  if (n < 1) return text
+  const index = indexOf(ring)
   let out = ''
   for (const ch of text) {
-    const pos = RING.indexOf(ch.toUpperCase())
-    out += pos < 0 ? ch : keepCase(ch, RING[N - 1 - pos])
+    out += mapChar(ch, ring, index, (pos, size) => size - 1 - pos)
   }
   return out
 }
 
 export function letterFrequencies(text: string): number[] {
-  const counts = new Array<number>(N).fill(0)
+  const counts = new Array<number>(SN).fill(0)
   let total = 0
   for (const ch of text.toUpperCase()) {
-    const pos = RING.indexOf(ch)
+    const pos = SPANISH_RING.indexOf(ch)
     if (pos >= 0) {
       counts[pos]++
       total++
@@ -58,7 +71,7 @@ export function letterFrequencies(text: string): number[] {
 
 function chiSquare(freqs: number[]): number {
   let sum = 0
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < SN; i++) {
     const expected = expectedSpanish[i]
     sum += (freqs[i] - expected) ** 2 / expected
   }
@@ -72,12 +85,16 @@ export interface PreviewDetection {
   confidence: number
 }
 
-export function detect(ciphertext: string): PreviewDetection {
+export function detect(
+  ciphertext: string,
+  ring: readonly string[],
+): PreviewDetection {
+  const n = ring.length
   const candidates: { method: Method; shift: number | null; text: string }[] = [
-    { method: 'atbash', shift: null, text: atbash(ciphertext) },
+    { method: 'atbash', shift: null, text: atbash(ciphertext, ring) },
   ]
-  for (let k = 1; k < N; k++) {
-    candidates.push({ method: 'caesar', shift: k, text: caesar(ciphertext, -k) })
+  for (let k = 1; k < n; k++) {
+    candidates.push({ method: 'caesar', shift: k, text: caesar(ciphertext, -k, ring) })
   }
 
   const scored = candidates

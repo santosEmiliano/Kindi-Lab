@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import './App.css'
+import { CharsetPicker } from './components/CharsetPicker'
 import { CharsetRing } from './components/CharsetRing'
 import { CipherResult } from './components/CipherResult'
 import { InputPill } from './components/InputPill'
@@ -16,24 +17,47 @@ import {
   type PreviewDetection,
   ringLabels,
 } from './lib/preview-cipher'
+import {
+  buildPreviewRing,
+  CHARSET_PRESETS,
+  CUSTOM_CHARSET_ID,
+  MIN_RING_SIZE,
+} from './lib/preview-charset'
 import type { Method, Mode } from './types'
 
+const DEFAULT_RING = buildPreviewRing(CHARSET_PRESETS[0].chars)
 const SAMPLE_PLAIN = 'El saber es la única riqueza que un tirano no puede confiscar.'
 const SAMPLE_CIPHER = caesar(
   'La escritura secreta se rompe contando letras, no adivinando.',
   7,
+  DEFAULT_RING,
 )
 
 function App() {
   const [mode, setMode] = useState<Mode>('encrypt')
   const [method, setMethod] = useState<Method>('caesar')
   const [shift, setShift] = useState(3)
+  const [charsetId, setCharsetId] = useState(CHARSET_PRESETS[0].id)
+  const [customChars, setCustomChars] = useState('')
   const [values, setValues] = useState<Record<Mode, string>>({
     encrypt: SAMPLE_PLAIN,
     decrypt: SAMPLE_CIPHER,
   })
   const [detection, setDetection] = useState<PreviewDetection | null>(null)
 
+  const source =
+    charsetId === CUSTOM_CHARSET_ID
+      ? customChars
+      : (CHARSET_PRESETS.find((preset) => preset.id === charsetId)?.chars ?? '')
+
+  const ring = useMemo(() => buildPreviewRing(source), [source])
+  const ringValid = ring.length >= MIN_RING_SIZE
+  const ringError =
+    charsetId === CUSTOM_CHARSET_ID && !ringValid
+      ? `El alfabeto necesita al menos ${MIN_RING_SIZE} caracteres distintos.`
+      : null
+
+  const effectiveShift = Math.min(shift, Math.max(1, ring.length - 1))
   const text = values[mode]
 
   const setText = useCallback(
@@ -49,17 +73,31 @@ function App() {
     setDetection(null)
   }, [])
 
+  const changeCharset = useCallback((id: string) => {
+    setCharsetId(id)
+    setDetection(null)
+  }, [])
+
+  const changeCustomChars = useCallback((chars: string) => {
+    setCustomChars(chars)
+    setDetection(null)
+  }, [])
+
   const run = useCallback(() => {
-    if (mode === 'decrypt') setDetection(detect(values.decrypt))
-  }, [mode, values.decrypt])
+    if (mode === 'decrypt' && ringValid) {
+      setDetection(detect(values.decrypt, ring))
+    }
+  }, [mode, ringValid, values.decrypt, ring])
 
   const view =
     mode === 'decrypt' ? (detection ? detection.method : 'caesar') : method
 
   const output = useMemo(() => {
     if (mode !== 'encrypt') return ''
-    return method === 'atbash' ? atbash(text) : caesar(text, shift)
-  }, [mode, method, shift, text])
+    return method === 'atbash'
+      ? atbash(text, ring)
+      : caesar(text, effectiveShift, ring)
+  }, [mode, method, effectiveShift, text, ring])
 
   return (
     <div className="stage" data-mode={mode} data-view={view}>
@@ -75,10 +113,20 @@ function App() {
           </p>
         </header>
 
+        <CharsetPicker
+          presets={CHARSET_PRESETS}
+          value={charsetId}
+          customChars={customChars}
+          error={ringError}
+          onValueChange={changeCharset}
+          onCustomChange={changeCustomChars}
+        />
+
         <div className="field">
           <div className="pill-anchor">
             <CharsetRing
-              shift={shift}
+              letters={ring}
+              shift={effectiveShift}
               active={view === 'caesar'}
               dimmed={mode === 'decrypt'}
             />
@@ -92,7 +140,13 @@ function App() {
               onRun={run}
             />
           </div>
-          <Subrow mode={mode} method={method} shift={shift} onShiftChange={setShift} />
+          <Subrow
+            mode={mode}
+            method={method}
+            shift={effectiveShift}
+            ringSize={ring.length}
+            onShiftChange={setShift}
+          />
         </div>
 
         {mode === 'encrypt' && <CipherResult value={output} />}
@@ -107,7 +161,7 @@ function App() {
         )}
       </div>
 
-      <MirrorBand />
+      <MirrorBand letters={ring} />
     </div>
   )
 }

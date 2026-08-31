@@ -5,26 +5,29 @@ interface SubrowProps {
   mode: Mode
   method: Method
   shift: number
+  ringSize: number
   onShiftChange: (value: number) => void
 }
 
 const MIN_SHIFT = 1
-const MAX_SHIFT = 26
 
-function hintFor(mode: Mode, method: Method): string | null {
-  if (mode === 'decrypt') return 'Kindi Lab prueba las 27 posibilidades y elige una.'
+function hintFor(mode: Mode, method: Method, ringSize: number): string | null {
+  if (mode === 'decrypt') {
+    return `Kindi Lab prueba las ${ringSize} posibilidades y elige una.`
+  }
   if (method === 'atbash') return 'Atbash no usa llave: refleja el alfabeto.'
   return null
 }
 
-export function Subrow({ mode, method, shift, onShiftChange }: SubrowProps) {
-  const showStepper = mode === 'encrypt' && method === 'caesar'
-  const hint = hintFor(mode, method)
+export function Subrow({ mode, method, shift, ringSize, onShiftChange }: SubrowProps) {
+  const maxShift = ringSize - 1
+  const showStepper = mode === 'encrypt' && method === 'caesar' && maxShift >= MIN_SHIFT
+  const hint = hintFor(mode, method, ringSize)
 
   const step = (delta: number) => {
     const next = shift + delta
-    if (next > MAX_SHIFT) onShiftChange(MIN_SHIFT)
-    else if (next < MIN_SHIFT) onShiftChange(MAX_SHIFT)
+    if (next > maxShift) onShiftChange(MIN_SHIFT)
+    else if (next < MIN_SHIFT) onShiftChange(maxShift)
     else onShiftChange(next)
   }
 
