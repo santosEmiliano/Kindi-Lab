@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { buildPreviewRing } from './preview-charset'
 import { atbash, caesar, detect, letterFrequencies } from './preview-cipher'
 
-const ES = buildPreviewRing('ABCDEFGHIJKLMNÑOPQRSTUVWXYZ')
-const ASCII = buildPreviewRing(
+const ring = (source: string): string[] =>
+  [...new Set(Array.from(source))].sort(
+    (a, b) => (a.codePointAt(0) ?? 0) - (b.codePointAt(0) ?? 0),
+  )
+
+const ES = ring('ABCDEFGHIJKLMNÑOPQRSTUVWXYZ')
+const ASCII = ring(
   Array.from({ length: 0x7e - 0x20 + 1 }, (_, i) => String.fromCharCode(0x20 + i)).join(''),
 )
 

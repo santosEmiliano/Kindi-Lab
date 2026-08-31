@@ -17,28 +17,25 @@ import {
   type PreviewDetection,
   ringLabels,
 } from './lib/preview-cipher'
-import {
-  buildPreviewRing,
-  CHARSET_PRESETS,
-  CUSTOM_CHARSET_ID,
-  MIN_RING_SIZE,
-} from './lib/preview-charset'
+import { buildRing, type Ring } from './lib/charset'
+import { CUSTOM_CHARSET_ID, MIN_RING_SIZE, PRESET_OPTIONS } from './lib/charsets'
 import type { Method, Mode } from './types'
 
-const DEFAULT_RING = buildPreviewRing(CHARSET_PRESETS[0].chars)
+const EMPTY_CHARS: readonly string[] = []
+const DEFAULT_RING = buildRing(PRESET_OPTIONS[0].chars)
 const SAMPLE_PLAIN = 'El saber es la única riqueza que un tirano no puede confiscar.'
 const SAMPLE_CIPHER = caesar(
   'La escritura secreta se rompe contando letras, no adivinando.',
   7,
-  DEFAULT_RING,
+  DEFAULT_RING.chars,
 )
 
 function App() {
   const [mode, setMode] = useState<Mode>('encrypt')
   const [method, setMethod] = useState<Method>('caesar')
   const [shift, setShift] = useState(3)
-  const [charsetId, setCharsetId] = useState(CHARSET_PRESETS[0].id)
-  const [displayCharsetId, setDisplayCharsetId] = useState(CHARSET_PRESETS[0].id)
+  const [charsetId, setCharsetId] = useState(PRESET_OPTIONS[0].id)
+  const [displayCharsetId, setDisplayCharsetId] = useState(PRESET_OPTIONS[0].id)
   const [customChars, setCustomChars] = useState('')
   const [values, setValues] = useState<Record<Mode, string>>({
     encrypt: SAMPLE_PLAIN,
@@ -50,29 +47,30 @@ function App() {
 
   useEffect(() => () => window.clearTimeout(fadeTimer.current), [])
 
-  const ring = useMemo(() => {
+  const ring = useMemo<Ring | null>(() => {
     const chars =
       charsetId === CUSTOM_CHARSET_ID
         ? customChars
-        : (CHARSET_PRESETS.find((preset) => preset.id === charsetId)?.chars ?? '')
-    return buildPreviewRing(chars)
+        : (PRESET_OPTIONS.find((preset) => preset.id === charsetId)?.chars ?? '')
+    return new Set(chars).size >= MIN_RING_SIZE ? buildRing(chars) : null
   }, [charsetId, customChars])
 
-  const displayRing = useMemo(() => {
+  const displayRing = useMemo<Ring | null>(() => {
     const chars =
       displayCharsetId === CUSTOM_CHARSET_ID
         ? customChars
-        : (CHARSET_PRESETS.find((preset) => preset.id === displayCharsetId)?.chars ??
+        : (PRESET_OPTIONS.find((preset) => preset.id === displayCharsetId)?.chars ??
           '')
-    return buildPreviewRing(chars)
+    return new Set(chars).size >= MIN_RING_SIZE ? buildRing(chars) : null
   }, [displayCharsetId, customChars])
-  const ringValid = ring.length >= MIN_RING_SIZE
+  const ringValid = ring !== null
+  const ringSize = ring?.size ?? 0
   const ringError =
     charsetId === CUSTOM_CHARSET_ID && !ringValid
       ? `El alfabeto necesita al menos ${MIN_RING_SIZE} caracteres distintos.`
       : null
 
-  const effectiveShift = Math.min(shift, Math.max(1, ring.length - 1))
+  const effectiveShift = Math.min(shift, Math.max(1, ringSize - 1))
   const text = values[mode]
 
   const setText = useCallback(
@@ -110,19 +108,19 @@ function App() {
   }, [])
 
   const run = useCallback(() => {
-    if (mode === 'decrypt' && ringValid) {
-      setDetection(detect(values.decrypt, ring))
+    if (mode === 'decrypt' && ring) {
+      setDetection(detect(values.decrypt, ring.chars))
     }
-  }, [mode, ringValid, values.decrypt, ring])
+  }, [mode, values.decrypt, ring])
 
   const view =
     mode === 'decrypt' ? (detection ? detection.method : 'caesar') : method
 
   const output = useMemo(() => {
-    if (mode !== 'encrypt') return ''
+    if (mode !== 'encrypt' || !ring) return ''
     return method === 'atbash'
-      ? atbash(text, ring)
-      : caesar(text, effectiveShift, ring)
+      ? atbash(text, ring.chars)
+      : caesar(text, effectiveShift, ring.chars)
   }, [mode, method, effectiveShift, text, ring])
 
   return (
@@ -140,7 +138,7 @@ function App() {
         </header>
 
         <CharsetPicker
-          presets={CHARSET_PRESETS}
+          presets={PRESET_OPTIONS}
           value={charsetId}
           customChars={customChars}
           error={ringError}
@@ -151,7 +149,7 @@ function App() {
         <div className="field">
           <div className="pill-anchor">
             <CharsetRing
-              letters={displayRing}
+              letters={displayRing?.chars ?? EMPTY_CHARS}
               shift={effectiveShift}
               active={view === 'caesar'}
               dimmed={mode === 'decrypt'}
@@ -171,7 +169,7 @@ function App() {
             mode={mode}
             method={method}
             shift={effectiveShift}
-            ringSize={ring.length}
+            ringSize={ringSize}
             onShiftChange={setShift}
           />
         </div>
@@ -188,7 +186,7 @@ function App() {
         )}
       </main>
 
-      <MirrorBand letters={displayRing} fading={charsetFading} />
+      <MirrorBand letters={displayRing?.chars ?? EMPTY_CHARS} fading={charsetFading} />
     </div>
   )
 }
