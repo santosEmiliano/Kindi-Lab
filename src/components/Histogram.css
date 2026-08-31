@@ -50,3 +50,56 @@
     transition: none;
   }
 }
+
+.hist-table {
+  margin-top: 12px;
+  color: var(--text-dim);
+}
+
+.hist-table > summary {
+  cursor: pointer;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.hist-table table {
+  margin-top: 8px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-table caption {
+  caption-side: top;
+  margin-bottom: 6px;
+  text-align: left;
+  color: var(--text-mute);
+  font-size: 0.72rem;
+}
+
+.hist-table th,
+.hist-table td {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  text-align: right;
+}
+
+.hist-table thead th {
+  text-align: right;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+
+.hist-table thead th:first-child,
+.hist-table tbody th {
+  text-align: left;
+}
+
+.hist-table tbody th {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text);
+}

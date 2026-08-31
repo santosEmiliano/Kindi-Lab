@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { HISTOGRAM_LABELS } from '../lib/letter-histogram'
@@ -29,5 +29,24 @@ describe('Histogram', () => {
     expect(tip).toBeInTheDocument()
     expect(tip?.querySelector('.hist-tip-letter')?.textContent).toBe('E')
     expect(tip?.textContent).toContain('20.0%')
+  })
+
+  it('exposes the same figures as a data table', async () => {
+    const user = userEvent.setup()
+    render(
+      <Histogram observed={observed} expected={expected} labels={HISTOGRAM_LABELS} />,
+    )
+
+    await user.click(screen.getByText('Ver como tabla'))
+    const table = screen.getByRole('table')
+    expect(within(table).getAllByRole('row')).toHaveLength(
+      HISTOGRAM_LABELS.length + 1,
+    )
+
+    const eRow = within(table)
+      .getByRole('rowheader', { name: 'E' })
+      .closest('tr') as HTMLElement
+    expect(within(eRow).getByText('20.0%')).toBeInTheDocument()
+    expect(within(eRow).getByText('4.0%')).toBeInTheDocument()
   })
 })
