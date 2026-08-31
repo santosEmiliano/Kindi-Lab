@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import './App.css'
+import { CharsetRing } from './components/CharsetRing'
 import { CipherResult } from './components/CipherResult'
 import { InputPill } from './components/InputPill'
 import { Subrow } from './components/Subrow'
@@ -74,15 +75,22 @@ function App() {
         </header>
 
         <div className="field">
-          <InputPill
-            mode={mode}
-            method={method}
-            text={text}
-            onTextChange={setText}
-            onMethodChange={setMethod}
-            onModeChange={changeMode}
-            onRun={run}
-          />
+          <div className="pill-anchor">
+            <CharsetRing
+              shift={shift}
+              active={view === 'caesar'}
+              dimmed={mode === 'decrypt'}
+            />
+            <InputPill
+              mode={mode}
+              method={method}
+              text={text}
+              onTextChange={setText}
+              onMethodChange={setMethod}
+              onModeChange={changeMode}
+              onRun={run}
+            />
+          </div>
           <Subrow mode={mode} method={method} shift={shift} onShiftChange={setShift} />
         </div>
 

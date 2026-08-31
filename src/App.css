@@ -78,7 +78,28 @@
   width: 100%;
   display: grid;
   justify-items: center;
-  gap: 10px;
+}
+
+.pill-anchor {
+  position: relative;
+  width: min(92vw, 560px);
+  margin-bottom: 12px;
+  transition: margin-bottom 0.5s ease;
+}
+
+.stage[data-view='caesar'] .pill-anchor {
+  margin-bottom: 52px;
+}
+
+.core > .result,
+.core > .verdict {
+  margin-top: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill-anchor {
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
