@@ -12,6 +12,11 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
+.verdict-readout {
+  display: grid;
+  gap: 14px;
+}
+
 .verdict .lbl {
   font-size: 0.68rem;
   font-weight: 600;

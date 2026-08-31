@@ -30,6 +30,7 @@ export function InputPill({
         spellCheck={false}
         autoComplete="off"
         value={text}
+        aria-label={decrypt ? 'Texto cifrado a descifrar' : 'Frase a cifrar'}
         placeholder={decrypt ? 'Pega el texto cifrado…' : 'Escribe una frase…'}
         onChange={(event) => onTextChange(event.target.value)}
       />

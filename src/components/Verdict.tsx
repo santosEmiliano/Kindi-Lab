@@ -25,33 +25,35 @@ export function Verdict({ detection, observed, expected, labels }: VerdictProps)
 
   return (
     <div className="verdict">
-      <div>
-        <span className="lbl">Texto descifrado</span>
-        <p className="plain">{plaintext}</p>
-      </div>
+      <div className="verdict-readout" aria-live="polite">
+        <div>
+          <span className="lbl">Texto descifrado</span>
+          <p className="plain">{plaintext}</p>
+        </div>
 
-      <div className="meta">
-        <span className="badge">{badge}</span>
-        <span className="conf">
-          <span className="conf-top">
-            <span>Confianza</span>
-            <span>
-              {word} · {percent}%
+        <div className="meta">
+          <span className="badge">{badge}</span>
+          <span className="conf">
+            <span className="conf-top">
+              <span>Confianza</span>
+              <span>
+                {word} · {percent}%
+              </span>
+            </span>
+            <span className="conf-track">
+              <span
+                className={word === 'baja' ? 'conf-fill low' : 'conf-fill'}
+                style={{ width: `${barWidth}%` }}
+              />
             </span>
           </span>
-          <span className="conf-track">
-            <span
-              className={word === 'baja' ? 'conf-fill low' : 'conf-fill'}
-              style={{ width: `${barWidth}%` }}
-            />
-          </span>
-        </span>
-      </div>
+        </div>
 
-      <p className="vnote">
-        Evaluó Atbash y cada desplazamiento de César, y se quedó con la única lectura
-        que puntúa como español.
-      </p>
+        <p className="vnote">
+          Evaluó Atbash y cada desplazamiento de César, y se quedó con la única
+          lectura que puntúa como español.
+        </p>
+      </div>
 
       <details className="analysis">
         <summary>Ver análisis de frecuencias</summary>

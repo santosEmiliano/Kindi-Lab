@@ -24,6 +24,7 @@ describe('InputPill', () => {
   it('shows the method selector and a "Cifrar" run button in encrypt mode', () => {
     setup()
     expect(screen.getByLabelText('Método')).toBeInTheDocument()
+    expect(screen.getByLabelText('Frase a cifrar')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Cifrar' })).toBeInTheDocument()
     expect(screen.queryByText('Detección automática')).not.toBeInTheDocument()
   })
@@ -31,6 +32,7 @@ describe('InputPill', () => {
   it('replaces the method selector with the auto-detect chip in decrypt mode', () => {
     setup({ mode: 'decrypt' })
     expect(screen.queryByLabelText('Método')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Texto cifrado a descifrar')).toBeInTheDocument()
     expect(screen.getByText('Detección automática')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Descifrar' })).toBeInTheDocument()
   })

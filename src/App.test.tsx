@@ -9,10 +9,12 @@ afterEach(() => {
 })
 
 describe('App shell', () => {
-  it('renders the stage backdrop', () => {
+  it('renders the stage backdrop and a main landmark', () => {
     const { container } = render(<App />)
     expect(container.querySelector('.stage')).toBeInTheDocument()
     expect(container.querySelector('.glow')).toBeInTheDocument()
+    expect(screen.getByRole('main')).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
   it('toggles the color theme and persists the choice', async () => {

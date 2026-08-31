@@ -104,7 +104,7 @@ function App() {
       <div className="glow" aria-hidden="true" />
       <ThemeToggle />
 
-      <div className="core">
+      <main className="core">
         <header className="head">
           <h1 className="mark">Kindi Lab</h1>
           <p className="tag">
@@ -159,7 +159,7 @@ function App() {
             labels={ringLabels}
           />
         )}
-      </div>
+      </main>
 
       <MirrorBand letters={ring} />
     </div>

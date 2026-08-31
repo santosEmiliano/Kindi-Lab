@@ -30,6 +30,25 @@ describe('Verdict', () => {
     expect(screen.getByText('alta · 90%')).toBeInTheDocument()
   })
 
+  it('announces the readout politely without reading out the chart', () => {
+    const { container } = render(
+      <Verdict
+        detection={{
+          plaintext: 'la escritura secreta',
+          method: 'caesar',
+          shift: 7,
+          confidence: 0.9,
+        }}
+        observed={observed}
+        expected={expectedSpanish}
+        labels={ringLabels}
+      />,
+    )
+    const live = container.querySelector('[aria-live="polite"]')
+    expect(live).toHaveClass('verdict-readout')
+    expect(live?.querySelector('details')).toBeNull()
+  })
+
   it('labels a low-confidence Atbash reading without a key', () => {
     renderVerdict({
       plaintext: 'texto corto',
