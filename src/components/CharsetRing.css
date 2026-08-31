@@ -1,0 +1,48 @@
+.orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  pointer-events: none;
+  perspective: 900px;
+  transition: opacity 0.3s ease;
+}
+
+.stage[data-view='atbash'] .orbit {
+  opacity: 0;
+}
+
+.orbit-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  min-width: 1.7em;
+  padding: 0.24em 0.34em;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  box-shadow: 0 8px 20px -12px color-mix(in srgb, #000 65%, transparent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--accent);
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+.orbit-glyph {
+  display: block;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit {
+    transition: none;
+  }
+}

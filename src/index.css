@@ -1,9 +1,105 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-mute: var(--text-mute);
+  --color-brass: var(--brass);
+  --color-verdigris: var(--verdigris);
+  --color-warn: var(--warn);
+  --color-on-accent: var(--on-accent);
+
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+
+  --ground: #ede7d7;
+  --surface: #f8f3e7;
+  --surface-2: #e7ddc6;
+  --line: #d3c7a9;
+  --text: #282215;
+  --text-dim: #6b6144;
+  --text-mute: #948868;
+  --brass: #876710;
+  --verdigris: #2c685d;
+  --warn: #a85e2a;
+  --on-accent: #f8f3e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --ground: #0a0d12;
+    --surface: #12171f;
+    --surface-2: #1a222d;
+    --line: #28323f;
+    --text: #ece3ce;
+    --text-dim: #98a1b0;
+    --text-mute: #59636f;
+    --brass: #d6ae41;
+    --verdigris: #57ab9d;
+    --warn: #ce7f44;
+    --on-accent: #0c0f15;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --ground: #0a0d12;
+  --surface: #12171f;
+  --surface-2: #1a222d;
+  --line: #28323f;
+  --text: #ece3ce;
+  --text-dim: #98a1b0;
+  --text-mute: #59636f;
+  --brass: #d6ae41;
+  --verdigris: #57ab9d;
+  --warn: #ce7f44;
+  --on-accent: #0c0f15;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --ground: #ede7d7;
+  --surface: #f8f3e7;
+  --surface-2: #e7ddc6;
+  --line: #d3c7a9;
+  --text: #282215;
+  --text-dim: #6b6144;
+  --text-mute: #948868;
+  --brass: #876710;
+  --verdigris: #2c685d;
+  --warn: #a85e2a;
+  --on-accent: #f8f3e7;
 }
 
 body {
+  margin: 0;
   min-height: 100svh;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

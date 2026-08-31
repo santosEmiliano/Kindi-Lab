@@ -1,0 +1,54 @@
+.result {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  text-align: center;
+}
+
+.result .lbl {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.result .value {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.result .copy {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.result .copy:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.result .copy:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.result .copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

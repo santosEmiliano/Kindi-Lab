@@ -1,0 +1,53 @@
+.subrow {
+  position: relative;
+  z-index: 4;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--text-mute);
+}
+
+.subrow .stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.subrow .stepper .lbl {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.subrow .stepper button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.subrow .stepper button:hover {
+  border-color: var(--accent);
+}
+
+.subrow .stepper button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.subrow .stepper .k {
+  min-width: 2.5ch;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
