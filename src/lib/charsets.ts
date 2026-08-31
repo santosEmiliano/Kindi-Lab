@@ -1,6 +1,7 @@
-import { CHARSET_PRESETS } from './charset'
+import { CHARSET_PRESETS, type CharsetPresetId } from './charset'
 
 export const CUSTOM_CHARSET_ID = 'custom'
+export const DEFAULT_CHARSET_ID: CharsetPresetId = 'spanish-upper'
 export const MIN_RING_SIZE = 2
 
 export interface CharsetOption {

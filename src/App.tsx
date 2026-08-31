@@ -9,33 +9,39 @@ import { Subrow } from './components/Subrow'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Verdict } from './components/Verdict'
 import {
-  atbash,
-  caesar,
   detect,
   expectedSpanish,
   letterFrequencies,
   type PreviewDetection,
   ringLabels,
 } from './lib/preview-cipher'
+import { atbash, caesarEncrypt } from './lib/ciphers'
 import { buildRing, type Ring } from './lib/charset'
-import { CUSTOM_CHARSET_ID, MIN_RING_SIZE, PRESET_OPTIONS } from './lib/charsets'
+import {
+  CUSTOM_CHARSET_ID,
+  DEFAULT_CHARSET_ID,
+  MIN_RING_SIZE,
+  PRESET_OPTIONS,
+} from './lib/charsets'
 import type { Method, Mode } from './types'
 
 const EMPTY_CHARS: readonly string[] = []
-const DEFAULT_RING = buildRing(PRESET_OPTIONS[0].chars)
-const SAMPLE_PLAIN = 'El saber es la única riqueza que un tirano no puede confiscar.'
-const SAMPLE_CIPHER = caesar(
-  'La escritura secreta se rompe contando letras, no adivinando.',
+const DEFAULT_RING = buildRing(
+  PRESET_OPTIONS.find((preset) => preset.id === DEFAULT_CHARSET_ID)?.chars ?? '',
+)
+const SAMPLE_PLAIN = 'EL SABER ES LA UNICA RIQUEZA QUE UN TIRANO NO PUEDE CONFISCAR.'
+const SAMPLE_CIPHER = caesarEncrypt(
+  'LA ESCRITURA SECRETA SE ROMPE CONTANDO LETRAS, NO ADIVINANDO.',
+  DEFAULT_RING,
   7,
-  DEFAULT_RING.chars,
 )
 
 function App() {
   const [mode, setMode] = useState<Mode>('encrypt')
   const [method, setMethod] = useState<Method>('caesar')
   const [shift, setShift] = useState(3)
-  const [charsetId, setCharsetId] = useState(PRESET_OPTIONS[0].id)
-  const [displayCharsetId, setDisplayCharsetId] = useState(PRESET_OPTIONS[0].id)
+  const [charsetId, setCharsetId] = useState<string>(DEFAULT_CHARSET_ID)
+  const [displayCharsetId, setDisplayCharsetId] = useState<string>(DEFAULT_CHARSET_ID)
   const [customChars, setCustomChars] = useState('')
   const [values, setValues] = useState<Record<Mode, string>>({
     encrypt: SAMPLE_PLAIN,
@@ -119,8 +125,8 @@ function App() {
   const output = useMemo(() => {
     if (mode !== 'encrypt' || !ring) return ''
     return method === 'atbash'
-      ? atbash(text, ring.chars)
-      : caesar(text, effectiveShift, ring.chars)
+      ? atbash(text, ring)
+      : caesarEncrypt(text, ring, effectiveShift)
   }, [mode, method, effectiveShift, text, ring])
 
   return (
