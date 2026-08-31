@@ -8,13 +8,6 @@ import { MirrorBand } from './components/MirrorBand'
 import { Subrow } from './components/Subrow'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Verdict } from './components/Verdict'
-import {
-  detect,
-  expectedSpanish,
-  letterFrequencies,
-  type PreviewDetection,
-  ringLabels,
-} from './lib/preview-cipher'
 import { atbash, caesarEncrypt } from './lib/ciphers'
 import { buildRing, type Ring } from './lib/charset'
 import {
@@ -23,6 +16,13 @@ import {
   MIN_RING_SIZE,
   PRESET_OPTIONS,
 } from './lib/charsets'
+import { detectCipher, type DetectionResult } from './lib/detect/select'
+import { loadSpanishData, type SpanishData } from './lib/spanish-data'
+import {
+  expectedFrequencies,
+  HISTOGRAM_LABELS,
+  letterHistogram,
+} from './lib/letter-histogram'
 import type { Method, Mode } from './types'
 
 const EMPTY_CHARS: readonly string[] = []
@@ -47,11 +47,19 @@ function App() {
     encrypt: SAMPLE_PLAIN,
     decrypt: SAMPLE_CIPHER,
   })
-  const [detection, setDetection] = useState<PreviewDetection | null>(null)
+  const [detection, setDetection] = useState<DetectionResult | null>(null)
+  const [spanishData, setSpanishData] = useState<SpanishData | null>(null)
+  const [detecting, setDetecting] = useState(false)
+  const [detectError, setDetectError] = useState<string | null>(null)
   const [charsetFading, setCharsetFading] = useState(false)
   const fadeTimer = useRef<number>(undefined)
 
   useEffect(() => () => window.clearTimeout(fadeTimer.current), [])
+
+  const resetDetection = useCallback(() => {
+    setDetection(null)
+    setDetectError(null)
+  }, [])
 
   const ring = useMemo<Ring | null>(() => {
     const chars =
@@ -82,42 +90,63 @@ function App() {
   const setText = useCallback(
     (value: string) => {
       setValues((prev) => ({ ...prev, [mode]: value }))
-      if (mode === 'decrypt') setDetection(null)
+      if (mode === 'decrypt') resetDetection()
     },
-    [mode],
+    [mode, resetDetection],
   )
 
-  const changeMode = useCallback((next: Mode) => {
-    setMode(next)
-    setDetection(null)
-  }, [])
+  const changeMode = useCallback(
+    (next: Mode) => {
+      setMode(next)
+      resetDetection()
+    },
+    [resetDetection],
+  )
 
-  const changeCharset = useCallback((id: string) => {
-    setCharsetId(id)
-    setDetection(null)
-    window.clearTimeout(fadeTimer.current)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDisplayCharsetId(id)
-      setCharsetFading(false)
-      return
-    }
-    setCharsetFading(true)
-    fadeTimer.current = window.setTimeout(() => {
-      setDisplayCharsetId(id)
-      setCharsetFading(false)
-    }, 260)
-  }, [])
+  const changeCharset = useCallback(
+    (id: string) => {
+      setCharsetId(id)
+      resetDetection()
+      window.clearTimeout(fadeTimer.current)
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setDisplayCharsetId(id)
+        setCharsetFading(false)
+        return
+      }
+      setCharsetFading(true)
+      fadeTimer.current = window.setTimeout(() => {
+        setDisplayCharsetId(id)
+        setCharsetFading(false)
+      }, 260)
+    },
+    [resetDetection],
+  )
 
-  const changeCustomChars = useCallback((chars: string) => {
-    setCustomChars(chars)
-    setDetection(null)
-  }, [])
+  const changeCustomChars = useCallback(
+    (chars: string) => {
+      setCustomChars(chars)
+      resetDetection()
+    },
+    [resetDetection],
+  )
 
   const run = useCallback(() => {
-    if (mode === 'decrypt' && ring) {
-      setDetection(detect(values.decrypt, ring.chars))
-    }
-  }, [mode, values.decrypt, ring])
+    if (mode !== 'decrypt' || !ring) return
+    const ciphertext = values.decrypt
+    setDetecting(true)
+    setDetectError(null)
+    loadSpanishData()
+      .then((data) => {
+        setSpanishData(data)
+        setDetection(detectCipher(ciphertext, ring, data))
+      })
+      .catch(() => {
+        setDetectError(
+          'No se pudieron cargar los datos del español. Revisa la conexión e inténtalo otra vez.',
+        )
+      })
+      .finally(() => setDetecting(false))
+  }, [mode, ring, values.decrypt])
 
   const view =
     mode === 'decrypt' ? (detection ? detection.method : 'caesar') : method
@@ -165,6 +194,7 @@ function App() {
               mode={mode}
               method={method}
               text={text}
+              busy={detecting}
               onTextChange={setText}
               onMethodChange={setMethod}
               onModeChange={changeMode}
@@ -182,12 +212,24 @@ function App() {
 
         {mode === 'encrypt' && <CipherResult value={output} />}
 
-        {mode === 'decrypt' && detection && (
+        {mode === 'decrypt' && detecting && (
+          <p className="detect-status" aria-live="polite">
+            Analizando el texto contra el español…
+          </p>
+        )}
+
+        {mode === 'decrypt' && detectError && (
+          <p className="detect-status is-error" role="alert">
+            {detectError}
+          </p>
+        )}
+
+        {mode === 'decrypt' && detection && spanishData && (
           <Verdict
             detection={detection}
-            observed={letterFrequencies(values.decrypt)}
-            expected={expectedSpanish}
-            labels={ringLabels}
+            observed={letterHistogram(values.decrypt)}
+            expected={expectedFrequencies(spanishData.letterFrequencies)}
+            labels={HISTOGRAM_LABELS}
           />
         )}
       </main>

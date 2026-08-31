@@ -1,18 +1,25 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { expectedSpanish, ringLabels } from '../lib/preview-cipher'
+import { HISTOGRAM_LABELS } from '../lib/letter-histogram'
 import { Verdict } from './Verdict'
 
-const observed = ringLabels.map(() => 1 / ringLabels.length)
+const observed = HISTOGRAM_LABELS.map(() => 1 / HISTOGRAM_LABELS.length)
+const expected = HISTOGRAM_LABELS.map(() => 1 / HISTOGRAM_LABELS.length)
 
-function renderVerdict(detection: Parameters<typeof Verdict>[0]['detection']) {
+type Detection = Parameters<typeof Verdict>[0]['detection']
+
+const detection = (
+  overrides: Pick<Detection, 'plaintext' | 'method' | 'shift' | 'confidence'>,
+): Detection => ({ quadgramScore: -1.5, wordRatio: 0.8, ...overrides })
+
+function renderVerdict(over: Parameters<typeof detection>[0]) {
   render(
     <Verdict
-      detection={detection}
+      detection={detection(over)}
       observed={observed}
-      expected={expectedSpanish}
-      labels={ringLabels}
+      expected={expected}
+      labels={HISTOGRAM_LABELS}
     />,
   )
 }
@@ -33,15 +40,15 @@ describe('Verdict', () => {
   it('announces the readout politely without reading out the chart', () => {
     const { container } = render(
       <Verdict
-        detection={{
+        detection={detection({
           plaintext: 'la escritura secreta',
           method: 'caesar',
           shift: 7,
           confidence: 0.9,
-        }}
+        })}
         observed={observed}
-        expected={expectedSpanish}
-        labels={ringLabels}
+        expected={expected}
+        labels={HISTOGRAM_LABELS}
       />,
     )
     const live = container.querySelector('[aria-live="polite"]')
