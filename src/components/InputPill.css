@@ -1,0 +1,153 @@
+.pill {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  width: min(92vw, 560px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 5px 5px 5px 20px;
+  box-shadow: 0 20px 50px -28px color-mix(in srgb, #000 70%, transparent);
+}
+
+.pill .text {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.94rem;
+  padding: 13px 10px 13px 0;
+}
+
+.pill .text::placeholder {
+  color: var(--text-mute);
+}
+
+.pill .text:focus {
+  outline: none;
+}
+
+.pill .sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 7px 2px;
+  background: var(--line);
+}
+
+.pill .selwrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pill .selwrap::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-mute);
+}
+
+.pill select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 10px 22px 10px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.pill select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.pill .auto-pill {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  padding: 10px 12px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pill .auto-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.pill .run {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  margin-left: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 1rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  transition:
+    filter 0.15s,
+    transform 0.05s;
+}
+
+.pill .run:hover {
+  filter: brightness(1.08);
+}
+
+.pill .run:active {
+  transform: scale(0.94);
+}
+
+.pill .run:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .pill {
+    flex-wrap: wrap;
+    border-radius: 22px;
+    padding: 8px;
+  }
+
+  .pill .text {
+    flex-basis: 100%;
+    padding: 10px 8px;
+  }
+
+  .pill .sep {
+    display: none;
+  }
+
+  .pill .selwrap {
+    flex: 1;
+  }
+
+  .pill select {
+    width: 100%;
+  }
+}

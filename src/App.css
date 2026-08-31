@@ -24,3 +24,52 @@
   );
   transition: background 0.6s ease;
 }
+
+.core {
+  grid-row: 1;
+  align-self: center;
+  position: relative;
+  z-index: 3;
+  width: min(92vw, 640px);
+  display: grid;
+  gap: 30px;
+  justify-items: center;
+  padding: 80px 0 40px;
+}
+
+.head {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+}
+
+.mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  letter-spacing: 0.005em;
+  line-height: 1;
+}
+
+.mark::first-letter {
+  color: var(--accent);
+}
+
+.tag {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
