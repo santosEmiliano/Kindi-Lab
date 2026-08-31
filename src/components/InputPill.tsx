@@ -8,6 +8,7 @@ interface InputPillProps {
   onTextChange: (value: string) => void
   onMethodChange: (value: Method) => void
   onModeChange: (value: Mode) => void
+  onRun: () => void
 }
 
 export function InputPill({
@@ -17,6 +18,7 @@ export function InputPill({
   onTextChange,
   onMethodChange,
   onModeChange,
+  onRun,
 }: InputPillProps) {
   const decrypt = mode === 'decrypt'
 
@@ -62,7 +64,12 @@ export function InputPill({
         </select>
       </span>
 
-      <button className="run" type="button" aria-label={decrypt ? 'Descifrar' : 'Cifrar'}>
+      <button
+        className="run"
+        type="button"
+        aria-label={decrypt ? 'Descifrar' : 'Cifrar'}
+        onClick={onRun}
+      >
         ▶
       </button>
     </div>

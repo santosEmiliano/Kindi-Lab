@@ -13,6 +13,7 @@ function setup(overrides: Partial<Parameters<typeof InputPill>[0]> = {}) {
     onTextChange: noop,
     onMethodChange: noop,
     onModeChange: noop,
+    onRun: noop,
     ...overrides,
   }
   render(<InputPill {...props} />)
@@ -45,5 +46,14 @@ describe('InputPill', () => {
 
     await user.selectOptions(screen.getByLabelText('Acción'), 'decrypt')
     expect(onModeChange).toHaveBeenCalledWith('decrypt')
+  })
+
+  it('fires onRun when the run button is pressed', async () => {
+    const user = userEvent.setup()
+    const onRun = vi.fn()
+    setup({ mode: 'decrypt', onRun })
+
+    await user.click(screen.getByRole('button', { name: 'Descifrar' }))
+    expect(onRun).toHaveBeenCalledOnce()
   })
 })
