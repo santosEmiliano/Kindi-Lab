@@ -1,3 +1,9 @@
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d6ae41;
+}
+
 .stage {
   --accent: var(--brass);
   position: relative;
@@ -7,6 +13,7 @@
   grid-template-rows: 1fr auto;
   justify-items: center;
   padding: 0 20px;
+  transition: --accent 0.5s ease;
 }
 
 .stage[data-view='atbash'] {
@@ -72,4 +79,11 @@
   display: grid;
   justify-items: center;
   gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .glow {
+    transition: none;
+  }
 }
