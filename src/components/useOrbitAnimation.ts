@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 interface OrbitOptions {
   letters: readonly string[]
+  visibleCount: number
   shift: number
   active: boolean
   dimmed: boolean
@@ -15,16 +16,23 @@ const SPIN_PER_SECOND = 0.09
 const SHIFT_EASE = 7
 const LETTER_CYCLE = 5
 const LETTER_FADE = 0.7
+const PORTAL_DEPTH = 0.16
 
 const smoothstep = (t: number) => t * t * (3 - 2 * t)
 
-export function useOrbitAnimation({ letters, shift, active, dimmed }: OrbitOptions) {
+export function useOrbitAnimation({
+  letters,
+  visibleCount,
+  shift,
+  active,
+  dimmed,
+}: OrbitOptions) {
   const orbitRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<(HTMLSpanElement | null)[]>([])
-  const inputs = useRef({ letters, shift, active, dimmed })
+  const inputs = useRef({ letters, visibleCount, shift, active, dimmed })
 
   useEffect(() => {
-    inputs.current = { letters, shift, active, dimmed }
+    inputs.current = { letters, visibleCount, shift, active, dimmed }
   })
 
   const setCardRef = useCallback(
@@ -52,8 +60,10 @@ export function useOrbitAnimation({ letters, shift, active, dimmed }: OrbitOptio
 
     const layout = () => {
       const { letters: ring, dimmed: dim } = inputs.current
-      const n = ring.length
+      const total = ring.length
+      const n = Math.min(inputs.current.visibleCount, total)
       if (!n) return
+      const portal = total > n && !reduced
       const compact = window.innerWidth <= COMPACT_WIDTH
       const rx = (pill ? pill.getBoundingClientRect().width / 2 : 180) + RX_EXTRA
       const ry = compact ? RY_COMPACT : RY_WIDE
@@ -66,7 +76,9 @@ export function useOrbitAnimation({ letters, shift, active, dimmed }: OrbitOptio
         const glyph = card.firstElementChild as HTMLElement | null
         const th = -Math.PI / 2 + (i / n) * Math.PI * 2 + angle
         const depth = (Math.sin(th) + 1) / 2
-        const scale = 0.6 + depth * 0.42
+        const collapse =
+          portal && depth < PORTAL_DEPTH ? smoothstep(depth / PORTAL_DEPTH) : 1
+        const scale = (0.6 + depth * 0.42) * collapse
         const x = Math.cos(th) * rx
         const y = Math.sin(th) * ry
         const faceY = Math.cos(th) * 20
@@ -75,13 +87,13 @@ export function useOrbitAnimation({ letters, shift, active, dimmed }: OrbitOptio
           `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) ` +
           `rotateX(${tiltX.toFixed(1)}deg) rotateY(${faceY.toFixed(1)}deg) ` +
           `scale(${scale.toFixed(3)})`
-        card.style.opacity = ((0.14 + depth * 0.6) * haze).toFixed(3)
+        card.style.opacity = ((0.14 + depth * 0.6) * haze * collapse).toFixed(3)
         card.style.filter =
           depth < 0.5 ? `blur(${((0.5 - depth) * 3).toFixed(2)}px)` : 'none'
         card.style.zIndex = depth > 0.5 ? '5' : '1'
         if (glyph) {
           glyph.style.opacity = letterFade.toFixed(3)
-          glyph.textContent = ring[(i + rounded + marchOffset) % n]
+          glyph.textContent = ring[(i + rounded + marchOffset) % total]
         }
       }
     }
