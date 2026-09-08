@@ -1,5 +1,6 @@
 import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react'
 import './MirrorBand.css'
+import { MAX_VISIBLE_CARDS } from './ring-window'
 
 interface MirrorBandProps {
   letters: readonly string[]
@@ -7,7 +8,8 @@ interface MirrorBandProps {
 }
 
 export function MirrorBand({ letters, fading = false }: MirrorBandProps) {
-  const n = letters.length
+  const total = letters.length
+  const n = Math.min(total, MAX_VISIBLE_CARDS)
   const trackRef = useRef<HTMLDivElement>(null)
   const [passWidth, setPassWidth] = useState(0)
 
@@ -46,7 +48,7 @@ export function MirrorBand({ letters, fading = false }: MirrorBandProps) {
           return (
             <div className="cell" key={index}>
               <span className="top">{letters[i]}</span>
-              <span className="bot">{letters[n - 1 - i]}</span>
+              <span className="bot">{letters[total - 1 - i]}</span>
             </div>
           )
         })}
