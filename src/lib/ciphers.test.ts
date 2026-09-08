@@ -60,6 +60,17 @@ describe('atbash', () => {
   })
 })
 
+describe('full ring beyond the visual card cap', () => {
+  const wide = buildRing(CHARSET_PRESETS['ascii-printable'].chars)
+
+  it('ciphers characters positioned past the 50th slot', () => {
+    expect(wide.size).toBeGreaterThan(50)
+    const far = wide.chars[80]
+    expect(caesarDecrypt(caesarEncrypt(far, wide, 47), wide, 47)).toBe(far)
+    expect(atbash(atbash(far, wide), wide)).toBe(far)
+  })
+})
+
 describe('NFC normalization', () => {
   const CJK = '中文日本語' // 中文日本語
   const ASTRAL = '\u{20000}\u{20001}\u{20002}'
