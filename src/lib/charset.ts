@@ -7,7 +7,9 @@ export interface Ring {
 }
 
 export function buildRing(source: string): Ring {
-  const unique = [...new Set(Array.from(source))].sort(
+  // Normalize to NFC so a character pasted in decomposed form (e.g. "e" + U+0301)
+  // occupies a single ring position instead of one per code point.
+  const unique = [...new Set(Array.from(source.normalize('NFC')))].sort(
     (a, b) => (a.codePointAt(0) ?? 0) - (b.codePointAt(0) ?? 0),
   )
 

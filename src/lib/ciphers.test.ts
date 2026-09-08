@@ -59,3 +59,43 @@ describe('atbash', () => {
     }
   })
 })
+
+describe('NFC normalization', () => {
+  const CJK = '中文日本語' // 中文日本語
+  const ASTRAL = '\u{20000}\u{20001}\u{20002}'
+  const E_ACUTE_DECOMPOSED = 'é'
+  const E_ACUTE_PRECOMPOSED = 'é'
+  const mixedRing = buildRing('ABCDE' + CJK + ASTRAL)
+
+  it('maps decomposed input onto the same position as its precomposed form', () => {
+    const ring = buildRing('AB' + E_ACUTE_PRECOMPOSED)
+    expect(caesarEncrypt('A' + E_ACUTE_DECOMPOSED, ring, 1)).toBe(
+      'B' + caesarEncrypt(E_ACUTE_PRECOMPOSED, ring, 1),
+    )
+  })
+
+  it('round-trips a Caesar shift over a mixed ASCII + CJK + astral ring', () => {
+    const plain = 'A' + CJK + 'E' + ASTRAL
+    for (let shift = 0; shift < mixedRing.size; shift++) {
+      expect(
+        caesarDecrypt(caesarEncrypt(plain, mixedRing, shift), mixedRing, shift),
+      ).toBe(plain)
+    }
+  })
+
+  it('round-trips Atbash over a mixed ASCII + CJK + astral ring', () => {
+    const plain = 'B' + ASTRAL + CJK + 'D'
+    expect(atbash(atbash(plain, mixedRing), mixedRing)).toBe(plain)
+  })
+
+  it('yields the NFC form when the input is decomposed', () => {
+    const ring = buildRing('XY' + E_ACUTE_PRECOMPOSED)
+    const decrypted = caesarDecrypt(
+      caesarEncrypt('X' + E_ACUTE_DECOMPOSED, ring, 2),
+      ring,
+      2,
+    )
+    expect(decrypted).toBe('X' + E_ACUTE_PRECOMPOSED)
+    expect(decrypted).not.toBe('X' + E_ACUTE_DECOMPOSED)
+  })
+})
