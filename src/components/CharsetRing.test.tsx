@@ -1,8 +1,12 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { CharsetRing } from './CharsetRing'
+import { MAX_VISIBLE_CARDS } from './ring-window'
 
 const ALPHABET = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('')
+const oversized = Array.from({ length: MAX_VISIBLE_CARDS + 70 }, (_, i) =>
+  String.fromCodePoint(0x4e00 + i),
+)
 
 describe('CharsetRing', () => {
   it('renders one decorative card per charset character, hidden from assistive tech', () => {
@@ -30,5 +34,14 @@ describe('CharsetRing', () => {
     expect(() =>
       render(<CharsetRing letters={[]} shift={1} active={false} dimmed />),
     ).not.toThrow()
+  })
+
+  it('caps the orbit at MAX_VISIBLE_CARDS for an oversized charset', () => {
+    const { container } = render(
+      <CharsetRing letters={oversized} shift={3} active dimmed={false} />,
+    )
+    expect(container.querySelectorAll('.orbit-card')).toHaveLength(
+      MAX_VISIBLE_CARDS,
+    )
   })
 })
