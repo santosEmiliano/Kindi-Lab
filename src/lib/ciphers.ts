@@ -18,7 +18,9 @@ function mapRingChars(
   transform: (index: number) => string,
 ): string {
   let out = ''
-  for (const char of text) {
+  // Match the NFC normalization applied when the ring is built, so decomposed
+  // input still lines up with ring positions.
+  for (const char of text.normalize('NFC')) {
     const index = ring.indexOf(char)
     out += index < 0 ? char : transform(index)
   }
