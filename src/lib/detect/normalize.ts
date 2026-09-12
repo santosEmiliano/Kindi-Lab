@@ -1,3 +1,4 @@
+// [KINDI:ED9OKL]
 export function foldToLatin(text: string): string {
   return text
     .toLowerCase()

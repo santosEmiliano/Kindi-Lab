@@ -9,6 +9,7 @@ export interface Candidate {
   text: string
 }
 
+// [KINDI:DVY12X]
 export function generateCandidates(ciphertext: string, ring: Ring): Candidate[] {
   const candidates: Candidate[] = [
     { method: 'atbash', shift: null, text: atbash(ciphertext, ring) },

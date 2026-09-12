@@ -9,22 +9,23 @@ const E_ACUTE_PRECOMPOSED = 'é'
 const E_ACUTE_DECOMPOSED = 'é' // "e" + U+0301 combining acute accent
 
 describe('buildRing', () => {
-  it('sorts characters by code point', () => {
+  it('preserves the order the characters were given in', () => {
     const ring = buildRing('dbca')
-    expect(ring.chars).toEqual(['a', 'b', 'c', 'd'])
+    expect(ring.chars).toEqual(['d', 'b', 'c', 'a'])
   })
 
-  it('deduplicates the source', () => {
+  it('deduplicates the source, keeping the first occurrence', () => {
     const ring = buildRing('aabbbc')
     expect(ring.chars).toEqual(['a', 'b', 'c'])
     expect(ring.size).toBe(3)
   })
 
-  it('places the N-tilde after "Z" for the Spanish preset', () => {
+  it('places the N-tilde where the Spanish preset writes it, between "N" and "O"', () => {
     const ring = buildRing(CHARSET_PRESETS['spanish-upper'].chars)
     expect(ring.size).toBe(27)
-    expect(ring.indexOf('Z')).toBe(25)
-    expect(ring.indexOf(ENIE)).toBe(26)
+    expect(ring.indexOf('N')).toBe(13)
+    expect(ring.indexOf(ENIE)).toBe(14)
+    expect(ring.indexOf('O')).toBe(15)
   })
 
   it('reports -1 for characters outside the ring', () => {
@@ -56,6 +57,6 @@ describe('buildRing', () => {
   it('treats an astral character and a CJK block as one position each', () => {
     const ring = buildRing(ASTRAL + CJK_ZHONG + CJK_WEN)
     expect(ring.size).toBe(3)
-    expect(ring.chars).toEqual([CJK_ZHONG, CJK_WEN, ASTRAL])
+    expect(ring.chars).toEqual([ASTRAL, CJK_ZHONG, CJK_WEN])
   })
 })

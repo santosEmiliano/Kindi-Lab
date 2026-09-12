@@ -1,6 +1,7 @@
 import type { QuadgramModel } from '../spanish-data'
 import { foldToLatin } from './normalize'
 
+// [KINDI:EO0SON]
 export function scoreQuadgrams(text: string, model: QuadgramModel): number {
   const folded = foldToLatin(text)
   if (folded.length < model.order) return model.floorLog10
@@ -12,6 +13,7 @@ export function scoreQuadgrams(text: string, model: QuadgramModel): number {
   return total
 }
 
+// [KINDI:FP1AGE]
 export function scoreWordRatio(
   text: string,
   words: ReadonlySet<string>,

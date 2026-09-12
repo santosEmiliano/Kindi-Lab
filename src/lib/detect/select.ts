@@ -33,6 +33,7 @@ function lowercaseFraction(text: string): number {
   return (text.match(/\p{Ll}/gu)?.length ?? 0) / letters
 }
 
+// [KINDI:GJQGT4]
 export function detectCipher(
   ciphertext: string,
   ring: Ring,

@@ -15,6 +15,7 @@ function confidenceWord(value: number): 'alta' | 'media' | 'baja' {
   return 'baja'
 }
 
+// [KINDI:ZTIU79]
 export function Verdict({ detection, observed, expected, labels }: VerdictProps) {
   const { plaintext, method, shift, confidence } = detection
   const word = confidenceWord(confidence)

@@ -6,7 +6,6 @@ export type RecoveryCase = {
 } & ({ method: 'caesar'; shift: number } | { method: 'atbash' })
 
 export const RECOVERY_CASES: RecoveryCase[] = [
-  // spanish-upper (size 27): uppercase, enye, no accents
   { plain: 'EL TREN SALE DE LA ESTACION CENTRAL A LAS OCHO EN PUNTO', preset: 'spanish-upper', method: 'caesar', shift: 7 },
   { plain: 'MAÑANA VISITAREMOS EL MUSEO DE ARTE MODERNO CON LOS NIÑOS', preset: 'spanish-upper', method: 'caesar', shift: 3 },
   { plain: 'LA REUNION FUE CANCELADA POR FALTA DE QUORUM SUFICIENTE', preset: 'spanish-upper', method: 'atbash' },
@@ -24,7 +23,6 @@ export const RECOVERY_CASES: RecoveryCase[] = [
   { plain: 'DOBLAMOS LA ROPA LIMPIA Y LA GUARDAMOS EN EL ARMARIO', preset: 'spanish-upper', method: 'caesar', shift: 3 },
   { plain: 'EL RELOJ DE LA TORRE DEJO DE FUNCIONAR HACE VARIOS MESES', preset: 'spanish-upper', method: 'caesar', shift: 20 },
 
-  // spanish-mixed (size 53): any case, enye, no accents
   { plain: 'el cartero pasa siempre a media manana por nuestra calle', preset: 'spanish-mixed', method: 'caesar', shift: 8 },
   { plain: 'Los estudiantes presentaron sus proyectos ante el jurado', preset: 'spanish-mixed', method: 'caesar', shift: 2 },
   { plain: 'una bandada de pajaros cruzo el cielo justo al atardecer', preset: 'spanish-mixed', method: 'atbash' },
@@ -44,7 +42,6 @@ export const RECOVERY_CASES: RecoveryCase[] = [
   { plain: 'manejar de noche por la sierra requiere mucha concentracion', preset: 'spanish-mixed', method: 'atbash' },
   { plain: 'encontramos un buen sitio para acampar cerca del arroyo seco', preset: 'spanish-mixed', method: 'caesar', shift: 11 },
 
-  // spanish-accents (size 33): uppercase with accents
   { plain: 'LA CANCIÓN QUE SONÓ EN LA RADIO ME TRAJO VIEJOS RECUERDOS', preset: 'spanish-accents', method: 'caesar', shift: 12 },
   { plain: 'EL AVIÓN ATERRIZÓ SIN NINGÚN PROBLEMA PESE A LA NIEBLA ESPESA', preset: 'spanish-accents', method: 'atbash' },
   { plain: 'NUNCA IMAGINÉ QUE APRENDER ALEMÁN FUERA UNA TAREA TAN DIFÍCIL', preset: 'spanish-accents', method: 'caesar', shift: 4 },
@@ -54,7 +51,6 @@ export const RECOVERY_CASES: RecoveryCase[] = [
   { plain: 'TERMINÓ EL CAFÉ Y PIDIÓ OTRO MIENTRAS LEÍA TRANQUILO EL DIARIO', preset: 'spanish-accents', method: 'caesar', shift: 8 },
   { plain: 'EL ÚLTIMO CAPÍTULO DE LA NOVELA ME DEJÓ COMPLETAMENTE SIN PALABRAS', preset: 'spanish-accents', method: 'atbash' },
 
-  // ascii-printable (size 95): lowercase, digits and punctuation allowed
   { plain: 'la cita con el dentista es el martes 12 a las 4 de la tarde.', preset: 'ascii-printable', method: 'caesar', shift: 33 },
   { plain: 'el paquete llego esta manana pero faltaba una de las piezas', preset: 'ascii-printable', method: 'caesar', shift: 50 },
   { plain: 'recuerda apagar las luces antes de salir de la oficina, por favor', preset: 'ascii-printable', method: 'atbash' },

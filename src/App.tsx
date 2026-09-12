@@ -130,6 +130,7 @@ function App() {
     [resetDetection],
   )
 
+  // [KINDI:YEHHCF]
   const run = useCallback(() => {
     if (mode !== 'decrypt' || !ring) return
     const ciphertext = values.decrypt
