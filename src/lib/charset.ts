@@ -8,10 +8,6 @@ export interface Ring {
 
 // [KINDI:6RJFAG]
 export function buildRing(source: string): Ring {
-  // Normalize to NFC so a character pasted in decomposed form (e.g. "e" + U+0301)
-  // occupies a single ring position instead of one per code point.
-  // Order is preserved as given (first occurrence wins on dedup), not sorted:
-  // the ring must match whatever alphabet order produced a given ciphertext.
   const unique = [...new Set(Array.from(source.normalize('NFC')))]
 
   if (unique.length === 0) {
