@@ -1,5 +1,6 @@
 import type { Ring } from './charset'
 
+// [KINDI:6W8J6V]
 export function caesarEncrypt(text: string, ring: Ring, shift: number): string {
   return mapRingChars(text, ring, (index) => ring.at(index + shift))
 }
@@ -8,10 +9,12 @@ export function caesarDecrypt(text: string, ring: Ring, shift: number): string {
   return caesarEncrypt(text, ring, -shift)
 }
 
+// [KINDI:AGWDUO]
 export function atbash(text: string, ring: Ring): string {
   return mapRingChars(text, ring, (index) => ring.at(ring.size - 1 - index))
 }
 
+// [KINDI:AXX7VW]
 function mapRingChars(
   text: string,
   ring: Ring,

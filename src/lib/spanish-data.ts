@@ -24,6 +24,7 @@ const QUADGRAMS_META = new URL('../assets/quadgrams-es.meta.json', import.meta.u
 const WORDS = new URL('../assets/words-es.txt', import.meta.url)
 const LETTER_FREQ = new URL('../assets/letter-freq-es.json', import.meta.url)
 
+// [KINDI:I20L4S]
 export function decodeQuadgrams(
   buffer: ArrayBuffer,
   meta: QuadgramMeta,
@@ -70,6 +71,7 @@ export function parseWordList(text: string): Set<string> {
 
 let cache: Promise<SpanishData> | undefined
 
+// [KINDI:QVB63S]
 export function loadSpanishData(): Promise<SpanishData> {
   if (!cache) cache = fetchSpanishData()
   return cache

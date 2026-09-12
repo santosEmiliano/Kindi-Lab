@@ -7,6 +7,7 @@ export const HISTOGRAM_LABELS: readonly string[] = Array.from(
   (_, index) => String.fromCharCode(CODE_A + index),
 )
 
+// [KINDI:T96RXB]
 export function letterHistogram(text: string): number[] {
   const counts = new Array<number>(26).fill(0)
   let total = 0

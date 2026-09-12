@@ -6,6 +6,7 @@ export interface Ring {
   has(char: string): boolean
 }
 
+// [KINDI:6RJFAG]
 export function buildRing(source: string): Ring {
   // Normalize to NFC so a character pasted in decomposed form (e.g. "e" + U+0301)
   // occupies a single ring position instead of one per code point.
