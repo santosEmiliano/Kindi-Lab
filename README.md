@@ -21,10 +21,12 @@ decryptor is given only the ciphertext and the character set.
 ### The character set (the ring)
 
 The user supplies the set of characters cipher operations act on. Kindi Lab
-deduplicates it, sorts it by Unicode code point and treats it as a ring of size
-`N`. Because the sort is by code point, `Ñ` (U+00D1) lands after `Z`, not between
-`N` and `O`. Any character not on the ring (spaces, punctuation, line breaks)
-passes through untouched.
+deduplicates it — keeping the first occurrence of any repeated character — and
+treats it as a ring of size `N`, **in the order it was given**. The ring is not
+re-sorted: if a ciphertext was produced with a specific alphabet order (e.g. by
+hand, or by another tool), decryption only recovers it if the same order is
+supplied here. Any character not on the ring (spaces, punctuation, line
+breaks) passes through untouched.
 
 Input is normalized to Unicode NFC first, so a character pasted in decomposed
 form (a base letter plus a combining mark) occupies a single ring position
