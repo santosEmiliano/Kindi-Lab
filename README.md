@@ -112,8 +112,11 @@ src/
   assets/                the pre-built language model (see below)
   App.tsx                composes the single view
 scripts/                 offline Python that regenerates the language model
-docs/                    formal assignment deliverable (see below)
 ```
+
+`docs/Documento-Formal-Kindi-Lab.docx` is the formal assignment deliverable
+(see below). It is kept locally and submitted separately; it is not tracked
+by git and does not get pushed to this repository.
 
 ## The Spanish language model
 
@@ -165,9 +168,10 @@ explanation of what a critical function does lives in the source itself.
 Instead, each cipher/detection function and a few key UI wiring points carry a
 one-line `// [KINDI:XXXXXX]` tag — a random identifier and nothing else. The
 explanation of what each identifier does, and how it fits the rest of the
-system, lives only in `docs/Documento-Formal-Kindi-Lab.docx`, the formal
-deliverable submitted separately from this repository. Reading the source
-alone does not reconstruct the design; the document does.
+system, lives only in `docs/Documento-Formal-Kindi-Lab.docx` — the formal
+deliverable, kept out of git and submitted separately, not part of this
+repository. Reading the source alone does not reconstruct the design; the
+document does.
 
 ## Integrity verification
 
@@ -178,7 +182,7 @@ idea as a Linux distribution's ISO checksum, adapted so it isn't thrown off by
 file permissions, timestamps, or `.git`/`node_modules`/`dist` noise:
 
 ```
-SHA-256 (project manifest): 15d2eb4ab4de6433df2bf2c5c50453569de441e93bb12bfebd93640599236015
+SHA-256 (project manifest): 363a929724c5fe6732cc88145a176d85d945c760613652b27d43fd10544995c6
 ```
 
 Regenerate it from the repository root with:
