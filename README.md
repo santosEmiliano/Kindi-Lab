@@ -26,10 +26,18 @@ deduplicates it, sorts it by Unicode code point and treats it as a ring of size
 `N` and `O`. Any character not on the ring (spaces, punctuation, line breaks)
 passes through untouched.
 
-Built-in presets: `spanish-upper` (A–Z + Ñ, 27 — the default), `spanish-mixed`
-(upper + lower + Ññ, 53), `spanish-accents` (A–Z Ñ + ÁÉÍÓÚÜ, 33) and
-`ascii-printable` (0x20–0x7E, 95). A custom set is also accepted. The same ring
-is used to encrypt and to decrypt.
+Input is normalized to Unicode NFC first, so a character pasted in decomposed
+form (a base letter plus a combining mark) occupies a single ring position
+instead of one per code point. Built-in presets: `spanish-upper` (A–Z + Ñ, 27
+— the default), `spanish-mixed` (upper + lower + Ññ, 53), `spanish-accents`
+(A–Z Ñ + ÁÉÍÓÚÜ, 33) and `ascii-printable` (0x20–0x7E, 95). A custom set is
+also accepted, including arbitrary Unicode. The same ring is used to encrypt
+and to decrypt.
+
+The ring visualization caps itself at 50 visible cards (`MAX_VISIBLE_CARDS`):
+larger charsets fold the rest behind a "portal" at the back of the ring rather
+than rendering hundreds of DOM nodes. This is a rendering cap only — the
+cipher itself operates on the full ring regardless of size.
 
 ### Ciphers
 
@@ -102,6 +110,7 @@ src/
   assets/                the pre-built language model (see below)
   App.tsx                composes the single view
 scripts/                 offline Python that regenerates the language model
+docs/                    formal assignment deliverable (see below)
 ```
 
 ## The Spanish language model
@@ -129,17 +138,59 @@ themselves. They run at build time only; nothing Python is deployed.
 
 ## Tests
 
-Vitest (`pnpm test:run`, 77 tests). The engine is checked with fixed vectors and
+Vitest (`pnpm test:run`, 86 tests). The engine is checked with fixed vectors and
 round-trip properties over every preset; the loaders, scorers and selector run
 against the real assets. `src/lib/detect/recovery.test.ts` holds 52 triples
 (real Spanish plaintext / preset / method / shift) across all four presets and
 both ciphers and requires **100 % recovery** of method, shift and plaintext.
+
+A separate, manual end-to-end sweep (fuzzing round-trip, normalization edge
+cases, auto-detection, and a real-browser pass over a hostile corpus — kanji,
+astral code points, ZWJ sequences, zalgo, RTL, surrogate pairs, custom
+charsets) is not part of this suite; it lives in the project's own notes, not
+in the repository.
 
 ## Deployment
 
 GitHub Actions. `ci.yml` runs lint, tests and the build on every pull request;
 `deploy.yml` builds on `main` and publishes `dist/` to GitHub Pages. Vite's
 `base` is `/Kindi-Lab/` so asset URLs resolve under the project subpath.
+
+## Secure code documentation
+
+The assignment requires the code to be "documented securely": no plain-text
+explanation of what a critical function does lives in the source itself.
+Instead, each cipher/detection function and a few key UI wiring points carry a
+one-line `// [KINDI:XXXXXX]` tag — a random identifier and nothing else. The
+explanation of what each identifier does, and how it fits the rest of the
+system, lives only in `docs/Documento-Formal-Kindi-Lab.docx`, the formal
+deliverable submitted separately from this repository. Reading the source
+alone does not reconstruct the design; the document does.
+
+## Integrity verification
+
+To let anyone confirm they cloned the exact project state that was submitted,
+this checksum covers every file tracked by git (paths sorted, each file hashed
+individually, then the sorted `hash  path` manifest hashed again) — the same
+idea as a Linux distribution's ISO checksum, adapted so it isn't thrown off by
+file permissions, timestamps, or `.git`/`node_modules`/`dist` noise:
+
+```
+SHA-256 (project manifest): 15d2eb4ab4de6433df2bf2c5c50453569de441e93bb12bfebd93640599236015
+```
+
+Regenerate it from the repository root with:
+
+```sh
+git ls-files -z | sort -z | while IFS= read -r -d '' f; do
+  printf '%s  %s\n' "$(openssl dgst -sha256 "$f" | awk '{print $2}')" "$f"
+done | openssl dgst -sha256
+```
+
+This value reflects the tracked files **at the moment it was generated**. Any
+later commit — including one that only edits this number — changes the tree
+and invalidates it; regenerate and update it after each commit that should be
+verifiable.
 
 ## Credits & licenses
 
